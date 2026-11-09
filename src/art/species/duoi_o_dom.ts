@@ -87,7 +87,7 @@ function distTo(p: P, pts: P[]): number {
 }
 
 // ---------- Cánh (vây ngực) – nửa trên; nửa dưới lấy đối xứng ----------
-const WING_START: P = [772, S - 4];
+const WING_START: P = [769.5, S - 4];
 const WING_SEGS: Seg[] = [
   { to: [762, S - 31] },
   // mép trước: dày, hơi lồi, quét ra sau tới chóp nhọn
@@ -108,11 +108,11 @@ const wingBot = build(WING_START, WING_SEGS, true);
 // ---------- Thân giữa (đầu + sống lưng), nửa trên rồi đối xứng ----------
 const TRUNK_HALF: Seg[] = [
   // mõm mỏ vịt: bè, tròn
-  { c1: [855, S - 10], c2: [850, S - 19], to: [840, S - 22] },
-  { c1: [830, S - 25], c2: [818, S - 25], to: [808, S - 27] },
+  { c1: [831.8, S - 10], c2: [828, S - 19], to: [820.5, S - 22] },
+  { c1: [813, S - 25], c2: [804, S - 25], to: [796.5, S - 27] },
   // u mắt
-  { c1: [800, S - 29], c2: [794, S - 33], to: [784, S - 33] },
-  { c1: [775, S - 33], c2: [768, S - 31], to: [760, S - 33] },
+  { c1: [790.5, S - 29], c2: [786, S - 33], to: [778.5, S - 33] },
+  { c1: [771.8, S - 33], c2: [766.5, S - 31], to: [760, S - 33] },
   // vai (nằm trên cánh – không viền)
   { c1: [745, S - 37], c2: [725, S - 44], to: [700, S - 45] },
   { c1: [660, S - 46], c2: [625, S - 42], to: [602, S - 37] },
@@ -120,11 +120,10 @@ const TRUNK_HALF: Seg[] = [
   { to: [520, S - 5] },
 ];
 function trunkPath(): { d: string; poly: P[] } {
-  const top = build([855, S], TRUNK_HALF);
+  const top = build([831.8, S], TRUNK_HALF);
   // nửa dưới: đi ngược các đoạn, đối xứng
-  const pts: P[] = [[855, S]];
-  let cur: P = [855, S];
-  const ends: P[] = [cur, ...TRUNK_HALF.map((s) => s.to)];
+  const pts: P[] = [[831.8, S]];
+  const ends: P[] = [[831.8, S], ...TRUNK_HALF.map((s) => s.to)];
   let d = top.d.replace(/Z$/, '');
   d += `L520 ${S + 5}`;
   for (let i = TRUNK_HALF.length - 1; i >= 0; i--) {
@@ -137,7 +136,6 @@ function trunkPath(): { d: string; poly: P[] } {
     } else d += `L${f(to[0])} ${f(to[1])}`;
   }
   // đa giác thô cho việc rải đốm
-  cur = [520, S + 5];
   for (const p of top.poly) pts.push(p);
   for (const p of [...top.poly].reverse()) pts.push(my(p));
   return { d: d + 'Z', poly: pts };
@@ -145,7 +143,7 @@ function trunkPath(): { d: string; poly: P[] } {
 const TRUNK = trunkPath();
 
 /** Viền đầu (chỉ phần đầu nhô ra trước cánh, nửa trên) */
-const HEAD_EDGE_TOP = `M760 ${S - 33}C768 ${S - 31} 775 ${S - 33} 784 ${S - 33}C794 ${S - 33} 800 ${S - 29} 808 ${S - 27}C818 ${S - 25} 830 ${S - 25} 840 ${S - 22}C850 ${S - 19} 855 ${S - 10} 855 ${S}`;
+const HEAD_EDGE_TOP = `M760 ${S - 33}C766.5 ${S - 31} 771.8 ${S - 33} 778.5 ${S - 33}C786 ${S - 33} 790.5 ${S - 29} 796.5 ${S - 27}C804 ${S - 25} 813 ${S - 25} 820.5 ${S - 22}C828 ${S - 19} 831.8 ${S - 10} 831.8 ${S}`;
 const HEAD_EDGE_BOT = mirrorPath(HEAD_EDGE_TOP);
 
 // ---------- Đốm ----------
@@ -205,15 +203,16 @@ function wingSpots(seed: number, w: { poly: P[]; outer: P[] }, bottom: boolean):
     seed,
     poly: w.poly,
     outer: w.outer,
-    count: 175,
+    count: 270,
     box,
-    rBig: 3.6,
-    rSmall: 1.7,
+    rBig: 2.7,
+    rSmall: 1.25,
     accept: (p, edge) => {
       const lat = Math.abs(p[1] - S);
       if (lat < 30) return 0; // dưới thân giữa
       const rear = Math.max(0, Math.min(1, (690 - p[0]) / 140)); // nửa sau cánh dày hơn
-      return 0.18 + 0.55 * edge + 0.3 * rear;
+      const root = Math.max(0, Math.min(1, (lat - 30) / 50)); // gần sống lưng thưa dần
+      return (0.18 + 0.55 * edge + 0.3 * rear) * (0.45 + 0.55 * root);
     },
   });
 }
@@ -286,7 +285,7 @@ function wingSvg(bottom: boolean): string {
   const outerPts = w.outer.filter((p) => Math.abs(p[1] - S) > 40);
   for (let i = 0; i < 16; i++) {
     const t = i / 15;
-    bases.push([548 + t * 206, S + sgn * 30]);
+    bases.push([560 + t * 180, S + sgn * (46 + Math.sin(t * Math.PI) * 6)]);
     const q = outerPts[Math.round((1 - t) * (outerPts.length - 1))];
     tips.push([q[0], q[1] - sgn * 4]);
   }
@@ -310,8 +309,8 @@ function wingSvg(bottom: boolean): string {
 }
 
 // ---------- Mắt (lồi hai bên đầu) ----------
-const eyeTop = eye(u, 'eyeTop', { cx: 790, cy: S - 32, r: 6.2, iris: ['#9c7a44', '#2b1e10'], socket: '#16171a', look: [0.4, -0.2] });
-const eyeBot = eye(u, 'eyeBot', { cx: 790, cy: S + 32, r: 6.2, iris: ['#8a6c3c', '#241a0e'], socket: '#16171a', look: [0.4, 0.2] });
+const eyeTop = eye(u, 'eyeTop', { cx: 782.2, cy: S - 29, r: 5.4, iris: ['#9c7a44', '#2b1e10'], socket: '#16171a', look: [0.4, -0.2] });
+const eyeBot = eye(u, 'eyeBot', { cx: 782.2, cy: S + 29, r: 5.4, iris: ['#8a6c3c', '#241a0e'], socket: '#16171a', look: [0.4, 0.2] });
 
 // ---------- defs ----------
 const defs = joinDefs(
@@ -321,29 +320,17 @@ const defs = joinDefs(
   `<clipPath id="${u('wingTopClip')}"><path d="${wingTop.d}"/></clipPath>`,
   `<clipPath id="${u('wingBotClip')}"><path d="${wingBot.d}"/></clipPath>`,
   `<clipPath id="${u('trunkClip')}"><path d="${TRUNK.d}"/></clipPath>`,
-  linear(u('wingTopFill'), [[0, ROOT], [0.1, ROOT], [0.5, MID], [1, TIP]], { user: true, x1: 0, y1: S - PIVOT_OFF, x2: 0, y2: S - 210 }),
-  linear(u('wingBotFill'), [[0, ROOT], [0.1, ROOT], [0.5, MID], [1, shade2(TIP)]], { user: true, x1: 0, y1: S + PIVOT_OFF, x2: 0, y2: S + 210 }),
-  radial(u('wingTopSheen'), [[0, '#d8e6ea', 0.16], [0.55, '#d8e6ea', 0.05], [1, '#d8e6ea', 0]], { user: true, cx: 700, cy: S - 120, r: 120 }),
-  radial(u('wingBotSheen'), [[0, '#d8e6ea', 0.08], [0.6, '#d8e6ea', 0.02], [1, '#d8e6ea', 0]], { user: true, cx: 700, cy: S + 110, r: 110 }),
+  linear(u('wingTopFill'), [[0, ROOT], [0.2, ROOT], [0.58, MID], [1, TIP]], { user: true, x1: 0, y1: S - PIVOT_OFF, x2: 0, y2: S - 210 }),
+  linear(u('wingBotFill'), [[0, ROOT], [0.2, ROOT], [0.58, MID], [1, shade2(TIP)]], { user: true, x1: 0, y1: S + PIVOT_OFF, x2: 0, y2: S + 210 }),
+  radial(u('wingTopSheen'), [[0, '#d8e6ea', 0.16], [0.55, '#d8e6ea', 0.05], [1, '#d8e6ea', 0]], { user: true, cx: 692, cy: S - 140, r: 100 }),
+  radial(u('wingBotSheen'), [[0, '#d8e6ea', 0.08], [0.6, '#d8e6ea', 0.02], [1, '#d8e6ea', 0]], { user: true, cx: 692, cy: S + 140, r: 95 }),
   linear(u('wingTopRim'), [[0, '#e4f2f6', 0.75], [0.7, '#e4f2f6', 0.35], [1, '#e4f2f6', 0.1]], { user: true, x1: 762, y1: S - 31, x2: 674, y2: S - 210 }),
   linear(u('wingBotRim'), [[0, '#e4f2f6', 0.3], [1, '#e4f2f6', 0.05]], { user: true, x1: 762, y1: S + 31, x2: 674, y2: S + 210 }),
   // thân giữa: mép trùng màu gốc cánh, sống lưng nâu ấm
-  linear(
-    u('trunkFill'),
-    [
-      [0, ROOT],
-      [0.18, ROOT],
-      [0.42, mix(ROOT, RIDGE, 0.85)],
-      [0.5, RIDGE],
-      [0.6, mix(ROOT, RIDGE, 0.7)],
-      [0.82, ROOT],
-      [1, ROOT],
-    ],
-    { user: true, x1: 0, y1: S - 48, x2: 0, y2: S + 48 },
-  ),
+  `<filter id="${u('soft')}" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>`,
   radial(u('ridgeHi'), [[0, '#efe2cf', 0.2], [0.6, '#efe2cf', 0.05], [1, '#efe2cf', 0]], { user: true, cx: 720, cy: S - 4, r: 70, transform: `translate(720 ${S - 4}) scale(2.4 0.32) translate(-720 ${-(S - 4)})` }),
-  radial(u('headHi'), [[0, '#e9eef0', 0.22], [1, '#e9eef0', 0]], { user: true, cx: 826, cy: S - 8, r: 26 }),
-  linear(u('headRim'), [[0, '#ffffff', 0.15], [0.6, '#ffffff', 0.55], [1, '#ffffff', 0.6]], { user: true, x1: 762, y1: 0, x2: 855, y2: 0 }),
+  radial(u('headHi'), [[0, '#e9eef0', 0.16], [1, '#e9eef0', 0]], { user: true, cx: 816, cy: S - 6, r: 24 }),
+  linear(u('headRim'), [[0, '#ffffff', 0.1], [0.6, '#ffffff', 0.35], [1, '#ffffff', 0.15]], { user: true, x1: 762, y1: 0, x2: 832, y2: 0 }),
   linear(u('tail'), [[0, '#2b2a2c'], [0.3, '#1c1d21'], [1, '#141518']], { user: true, x1: 536, y1: 0, x2: 34, y2: 0 }),
   linear(u('pelvic'), [[0, '#3a3433'], [1, '#26272b']], { user: true, x1: 548, y1: 0, x2: 502, y2: 0 }),
 );
@@ -357,21 +344,24 @@ const trunkSpots = spots({
   seed: 57,
   poly: TRUNK.poly,
   outer: TRUNK.poly.filter((p) => p[0] < 760),
-  count: 34,
-  box: { x: 530, y: S - 46, w: 260, h: 92 },
-  rBig: 3.4,
-  rSmall: 2.2,
-  accept: (p) => (p[0] > 770 ? 0.15 : 0.6),
+  count: 90,
+  box: { x: 530, y: S - 46, w: 290, h: 92 },
+  rBig: 2.6,
+  rSmall: 1.6,
+  accept: (p, edge) => (p[0] > 758 ? (Math.abs(p[1] - S) < 15 ? 0.25 : 0) : 0.12 + 0.75 * edge),
 });
 
 const bodySvg =
-  `<g filter="${u.url('skin')}"><path d="${TRUNK.d}" fill="${u.url('trunkFill')}"/></g>` +
+  `<g filter="${u.url('skin')}"><path d="${TRUNK.d}" fill="${ROOT}"/></g>` +
   `<g clip-path="${u.url('trunkClip')}">` +
+  // sống lưng nâu ấm, mép nhoè để hòa vào gốc cánh
+  `<path d="M548 ${S}C600 ${S - 30} 740 ${S - 30} 810 ${S - 4}C814.5 ${S} 814.5 ${S} 810 ${S + 4}C740 ${S + 26} 600 ${S + 26} 548 ${S}Z" fill="${RIDGE}" filter="${u.url('soft')}"/>` +
+  `<path d="M570 ${S - 3}C640 ${S - 16} 730 ${S - 16} 790.5 ${S - 5}" fill="none" stroke="#a89580" stroke-opacity="0.18" stroke-width="7" filter="${u.url('soft')}"/>` +
   `<path d="${TRUNK.d}" fill="${u.url('ridgeHi')}"/>` +
   `<path d="${TRUNK.d}" fill="${u.url('headHi')}"/>` +
   trunkSpots +
   // bụng trắng lộ ở mép dưới đầu (nhìn hơi chếch)
-  `<path d="M764 ${S + 33}C786 ${S + 37} 800 ${S + 30} 808 ${S + 27}C820 ${S + 24} 838 ${S + 27} 848 ${S + 15}C842 ${S + 22} 828 ${S + 22} 812 ${S + 23}C798 ${S + 25} 784 ${S + 30} 764 ${S + 30}Z" fill="${BELLY}" fill-opacity="0.55"/>` +
+  `<path d="M787.5 ${S + 32}C790.5 ${S + 29} 793.5 ${S + 28} 796.5 ${S + 27}C804 ${S + 25} 813 ${S + 25} 820.5 ${S + 22}C825 ${S + 20} 828 ${S + 17} 830.2 ${S + 12}C825 ${S + 18} 814.5 ${S + 21} 799.5 ${S + 23}C793.5 ${S + 24} 790.5 ${S + 26} 787.5 ${S + 32}Z" fill="${BELLY}" fill-opacity="0.5"/>` +
   `</g>` +
   // vây bụng
   `<path d="${PELVIC_TOP}" fill="${u.url('pelvic')}" stroke="${OUTLINE}" stroke-opacity="0.55" stroke-width="1.2"/>` +
@@ -385,19 +375,18 @@ const bodySvg =
 
 const faceSvg =
   // nếp ngăn thùy mõm (mỏ vịt)
-  `<path d="M818 ${S - 24}Q829 ${S} 818 ${S + 24}" fill="none" stroke="${OUTLINE}" stroke-opacity="0.32" stroke-width="1.4"/>` +
-  `<path d="M821 ${S - 22}Q831 ${S} 821 ${S + 22}" fill="none" stroke="#dfe7ea" stroke-opacity="0.14" stroke-width="1"/>` +
+  `<path d="M802.5 ${S - 15}Q807.8 ${S} 802.5 ${S + 15}" fill="none" stroke="${OUTLINE}" stroke-opacity="0.22" stroke-width="2.4" filter="${u.url('soft')}"/>` +
   // gờ sọ giữa hai mắt
-  `<path d="M760 ${S - 14}Q790 ${S - 20} 812 ${S - 14}" fill="none" stroke="#e9dcc8" stroke-opacity="0.16" stroke-width="2"/>` +
-  `<path d="M760 ${S + 14}Q790 ${S + 20} 812 ${S + 14}" fill="none" stroke="${OUTLINE}" stroke-opacity="0.18" stroke-width="2"/>` +
+  `<path d="M760 ${S - 14}Q783 ${S - 20} 799.5 ${S - 14}" fill="none" stroke="#e9dcc8" stroke-opacity="0.16" stroke-width="2"/>` +
+  `<path d="M760 ${S + 14}Q783 ${S + 20} 799.5 ${S + 14}" fill="none" stroke="${OUTLINE}" stroke-opacity="0.18" stroke-width="2"/>` +
   // lỗ thở (spiracle) sau mắt
-  `<g fill="#0b0c0e" fill-opacity="0.85"><ellipse cx="771" cy="${S - 25}" rx="4.6" ry="2" transform="rotate(-12 771 ${S - 25})"/><ellipse cx="771" cy="${S + 25}" rx="4.6" ry="2" transform="rotate(12 771 ${S + 25})"/></g>` +
-  `<g fill="none" stroke="#c9d3d6" stroke-opacity="0.3" stroke-width="0.8"><path d="M767 ${S - 27.5}Q771 ${S - 28.5} 775 ${S - 27.5}"/><path d="M767 ${S + 22.5}Q771 ${S + 21.5} 775 ${S + 22.5}"/></g>`;
+  `<g fill="#0b0c0e" fill-opacity="0.85"><ellipse cx="769.5" cy="${S - 23}" rx="4.2" ry="1.8" transform="rotate(-14 769.5 ${S - 23})"/><ellipse cx="769.5" cy="${S + 23}" rx="4.2" ry="1.8" transform="rotate(14 769.5 ${S + 23})"/></g>` +
+  `<g fill="none" stroke="#c9d3d6" stroke-opacity="0.3" stroke-width="0.8"><path d="M766.5 ${S - 25.5}Q769.5 ${S - 26.5} 772.5 ${S - 25.5}"/><path d="M766.5 ${S + 20.5}Q769.5 ${S + 19.5} 772.5 ${S + 20.5}"/></g>`;
 
 const art: CreatureArt = {
   id: 'duoi_o_dom',
   viewBox: [880, 520],
-  lengthUnits: 821,
+  lengthUnits: 798,
   spineY: S,
   animation: 'ray',
   cycleHz: 0.42,
@@ -420,7 +409,7 @@ const art: CreatureArt = {
       bend: false,
       z: 'back',
       pivot: [650, S - PIVOT_OFF],
-      anim: { type: 'scaleY', amp: 0.24 },
+      anim: { type: 'scaleY', amp: 0.2 },
       svg: wingSvg(false),
     },
     {
@@ -429,7 +418,7 @@ const art: CreatureArt = {
       bend: false,
       z: 'back',
       pivot: [650, S + PIVOT_OFF],
-      anim: { type: 'scaleY', amp: 0.24 },
+      anim: { type: 'scaleY', amp: 0.2 },
       svg: wingSvg(true),
     },
     { name: 'body', role: 'body', svg: bodySvg },

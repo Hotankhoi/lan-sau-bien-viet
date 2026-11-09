@@ -3,7 +3,7 @@ export const CONFIG = {
   /** chiều rộng thế giới mỗi lượt lặn (px) */
   worldWidth: 6400,
   /** chiều cao thế giới theo tầng (px) */
-  worldHeight: { 1: 2300, 2: 2700, 3: 2600 } as Record<number, number>,
+  worldHeight: { 1: 1800, 2: 2400, 3: 2400 } as Record<number, number>,
   /** độ dày lớp đáy dưới đường đáy */
   seabedThickness: 420,
 

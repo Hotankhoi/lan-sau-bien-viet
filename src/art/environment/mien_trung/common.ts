@@ -91,6 +91,8 @@ export interface TreeOpts {
   box?: { x0: number; x1: number; y0: number };
   /** xác suất nhánh dừng sớm */
   stopP?: number;
+  /** đường bao elip: nhánh chạm bao thì dừng (tạo tán tròn tự nhiên) */
+  ellipse?: { cx: number; cy: number; rx: number; ry: number };
 }
 
 export function growTree(starts: { x: number; y: number; a: number; lenK?: number; wK?: number }[], o: TreeOpts): Seg[] {
@@ -115,6 +117,14 @@ export function growTree(starts: { x: number; y: number; a: number; lenK?: numbe
           nx = Math.max(o.box.x0, Math.min(o.box.x1, nx));
         }
         ny = Math.max(o.box.y0, ny);
+      }
+      if (o.ellipse) {
+        const E = o.ellipse;
+        const q = ((nx - E.cx) / E.rx) ** 2 + ((ny - E.cy) / E.ry) ** 2;
+        if (q > 1) {
+          if (out.length) out[out.length - 1].tip = true;
+          return;
+        }
       }
       const ww = w + ((w2 - w) * (i + 0.5)) / n;
       out.push({ a: [px, py], b: [nx, ny], w: ww, tip: false, depth: d });

@@ -11,7 +11,7 @@ import { makeIds, linear, radial, blurFilter, clip, rng, joinDefs, smoothPath, b
 const u = makeIds('oc_coi_dia_ly');
 
 // ---------- Màu ----------
-const NET = '#B05E38'; // nâu đỏ của mạng lưới
+const NET = '#B8683F'; // nâu đỏ của mạng lưới
 const BAND = '#7A2E1B'; // dải nâu đậm
 const TENT = '#F7E9E3'; // lều trắng hồng
 const TENT2 = '#EFD6CD';
@@ -121,10 +121,10 @@ const smooth = (e0: number, e1: number, x: number) => {
 
 /** độ "trắng" của vùng (0 = nâu đặc, 1 = trắng có lưới mảnh) */
 function whiteness(t: number, phi: number, jitter: number): number {
-  let w = 0.74;
+  let w = 0.86;
   for (const b of BANDS) {
     const d = Math.abs(t - bandCenter(b, phi));
-    w -= 0.6 * (1 - smooth(b.w - 0.02, b.w + 0.05, d));
+    w -= 0.78 * (1 - smooth(b.w - 0.02, b.w + 0.05, d));
   }
   w += 0.24 * Math.sin(t * 23 + phi * 2.1) * Math.cos(phi * 4.3 - t * 11);
   w += 0.12 * Math.sin(t * 51 - phi * 7.7);
@@ -149,36 +149,33 @@ function bandShapes(): string {
     }
     s += `<path d="${smoothPath(p, true, 0.45)}"/>`;
   }
-  return `<g fill="${BAND}" fill-opacity="0.78">${s}</g>`;
+  return `<g fill="${BAND}" fill-opacity="0.88">${s}</g>`;
 }
 
 /** mạng lưới "lều" tam giác – đỉnh tam giác chĩa về tháp vỏ (bên trái) */
 function tents(): string {
   const r = rng(1758);
-  const NU = 46;
-  const NP = 22;
   let a = '';
   let b = '';
-  for (let j = 0; j < NP; j++) {
-    for (let i = 0; i < NU; i++) {
-      const t = (i + 0.5 + (j % 2) * 0.5 + (r() - 0.5) * 0.5) / NU;
-      if (t > 0.995) continue;
-      const phi = -Math.PI / 2 + (Math.PI * (j + 0.5 + (r() - 0.5) * 0.4)) / NP;
-      const w = whiteness(t, phi, (r() - 0.5) * 0.22);
-      if (w < 0.14) continue;
-      const sc = 0.22 + 0.95 * w;
-      const L = (1.5 / NU) * sc;
-      const H = (Math.PI / NP) * 1.15 * sc;
-      const skew = (r() - 0.5) * H * 0.4;
-      const p1 = P(t - L * 0.55, phi + skew);
-      const p2 = P(t + L * 0.45, phi - H / 2);
-      const p3 = P(t + L * 0.45, phi + H / 2);
-      const m = P(t + L * 0.3, phi);
-      // cạnh đáy hơi lõm cho mềm
-      const d = `M${f(p1[0])} ${f(p1[1])}L${f(p2[0])} ${f(p2[1])}Q${f(m[0])} ${f(m[1])} ${f(p3[0])} ${f(p3[1])}Z`;
-      if (r() < 0.7) a += d;
-      else b += d;
-    }
+  // rải ngẫu nhiên (không theo lưới) với 2 cỡ: lều lớn ở vùng trắng, lều li ti trong dải nâu
+  for (let k = 0; k < 2100; k++) {
+    const t = r() * 0.99;
+    const phi = Math.asin(r() * 2 - 1) * 0.985;
+    const w = whiteness(t, phi, (r() - 0.5) * 0.25);
+    if (w < 0.12 && r() < 0.85) continue;
+    const big = r() < 0.35 ? 1.7 : 1;
+    const sc = (0.25 + 0.9 * w) * (0.55 + r() * 0.6) * big;
+    const L = 0.017 * sc;
+    const H = 0.1 * sc * (0.8 + r() * 0.5);
+    const skew = (r() - 0.5) * H * 0.7;
+    const p1 = P(t - L * 0.6, phi + skew);
+    const p2 = P(t + L * 0.4, phi - H / 2);
+    const p3 = P(t + L * 0.4, phi + H / 2);
+    const m = P(t + L * (0.15 + r() * 0.2), phi + (r() - 0.5) * H * 0.3);
+    // cạnh đáy lõm cho mềm, hơi lệch để không đều tăm tắp
+    const d = `M${f(p1[0])} ${f(p1[1])}L${f(p2[0])} ${f(p2[1])}Q${f(m[0])} ${f(m[1])} ${f(p3[0])} ${f(p3[1])}Z`;
+    if (r() < 0.72) a += d;
+    else b += d;
   }
   return `<path d="${a}" fill="${TENT}"/><path d="${b}" fill="${TENT2}"/>`;
 }
@@ -189,7 +186,7 @@ function whiteBlobs(): string {
   let s = '';
   let n = 0;
   let tries = 0;
-  while (n < 16 && tries < 400) {
+  while (n < 30 && tries < 600) {
     tries++;
     const t = 0.03 + r() * 0.9;
     const phi = -1.35 + r() * 2.5;
@@ -250,12 +247,12 @@ function spire(): string {
     const bow = 10 + s0 * 8;
     sut += `M${f(top[0])} ${f(top[1])}Q${f(x0 + bow)} ${f(axisY(x0))} ${f(bot[0])} ${f(bot[1])}`;
     // mấu dọc đường khâu
-    const nk = Math.round(4 + s0 * 7);
+    const nk = Math.round(3 + s0 * 5);
     for (let k = 1; k < nk; k++) {
       const tt = k / nk;
       const bx = (1 - tt) * (1 - tt) * top[0] + 2 * (1 - tt) * tt * (x0 + bow) + tt * tt * bot[0];
       const by = (1 - tt) * (1 - tt) * top[1] + 2 * (1 - tt) * tt * axisY(x0) + tt * tt * bot[1];
-      const rr = 1.6 + s0 * 1.6 + r() * 0.6;
+      const rr = 1.1 + s0 * 1.2 + r() * 0.5;
       knobs += `<ellipse cx="${f(bx - rr * 0.8)}" cy="${f(by)}" rx="${f(rr)}" ry="${f(rr * 1.2)}"/>`;
     }
   }
@@ -270,7 +267,7 @@ function spire(): string {
   }
   return (
     `<g fill="${NET}" fill-opacity="0.7">${streaks}</g>` +
-    `<g fill="${TENT}" stroke="${OUTLINE}" stroke-opacity="0.25" stroke-width="0.6">${knobs}</g>` +
+    `<g fill="#fbefe9" fill-opacity="0.85">${knobs}</g>` +
     `<path d="${sut}" fill="none" stroke="${OUTLINE}" stroke-opacity="0.55" stroke-width="1.1"/>`
   );
 }
@@ -283,20 +280,20 @@ function shoulder(): string {
   for (let k = 1; k < n; k++) {
     const phi = -Math.PI / 2 + (Math.PI * k) / n;
     const [x, y] = P(0.004, phi);
-    const rr = 2.2 + Math.cos(phi) * 1.6 + r() * 0.5;
+    const rr = 1.4 + Math.cos(phi) * 1.2 + r() * 0.4;
     knobs += `<ellipse cx="${f(x - 3)}" cy="${f(y)}" rx="${f(rr * 0.9)}" ry="${f(rr * 1.3 * Math.max(0.35, Math.cos(phi)))}"/>`;
   }
   const p: [number, number][] = [];
   for (let k = 0; k <= 10; k++) p.push(P(0, -Math.PI / 2 + (Math.PI * k) / 10));
   return (
     `<path d="${smoothPath(p)}" fill="none" stroke="${OUTLINE}" stroke-opacity="0.5" stroke-width="1.4"/>` +
-    `<g fill="${TENT}" stroke="${OUTLINE}" stroke-opacity="0.3" stroke-width="0.6">${knobs}</g>`
+    `<g fill="#fbefe9" fill-opacity="0.55">${knobs}</g>`
   );
 }
 
 // ---------- Thân mềm ----------
 /** ống mềm theo đường cong bezier, bề rộng w0 → w1 */
-function tube(c: [[number, number], [number, number], [number, number], [number, number]], w0: number, w1: number, n = 14) {
+function tube(c: [[number, number], [number, number], [number, number], [number, number]], w0: number, w1: number, n = 14, ex = 1) {
   const ctr: [number, number][] = [];
   for (let i = 0; i <= n; i++) ctr.push(bezierPoint(c[0], c[1], c[2], c[3], i / n));
   const L: [number, number][] = [];
@@ -309,7 +306,7 @@ function tube(c: [[number, number], [number, number], [number, number], [number,
     const len = Math.hypot(dx, dy) || 1;
     const nx = -dy / len;
     const ny = dx / len;
-    const w = (w0 + (w1 - w0) * (i / n)) / 2;
+    const w = (w0 + (w1 - w0) * Math.pow(i / n, ex)) / 2;
     L.push([ctr[i][0] + nx * w, ctr[i][1] + ny * w]);
     R.push([ctr[i][0] - nx * w, ctr[i][1] - ny * w]);
   }
@@ -319,21 +316,21 @@ function tube(c: [[number, number], [number, number], [number, number], [number,
   return { d: smoothPath([...L, ...R.reverse()], true, 0.45), ctr, L, R: R.reverse(), end, ang };
 }
 
-const SIPHON = tube([[410, 134], [446, 132], [478, 112], [510, 78]], 17, 13);
-const ROSTRUM = tube([[414, 178], [438, 180], [458, 186], [490, 196]], 13, 30);
-const TENT_NEAR = tube([[424, 168], [438, 160], [450, 152], [466, 147]], 5, 2.6);
-const TENT_FAR = tube([[418, 166], [430, 156], [440, 150], [452, 141]], 4.4, 2.4);
+const SIPHON = tube([[398, 149], [440, 148], [474, 128], [500, 92]], 16, 13.5, 16);
+const ROSTRUM = tube([[420, 196], [440, 198], [458, 203], [482, 210]], 12, 30, 14, 2.4);
+const TENT_NEAR = tube([[426, 186], [438, 178], [450, 172], [466, 168]], 5, 2.6);
+const TENT_FAR = tube([[420, 184], [430, 175], [440, 168], [452, 160]], 4.4, 2.4);
 
 const FOOT = smoothPath(
   [
-    [118, 204], [170, 200], [240, 196], [310, 188], [370, 176], [408, 166], [440, 176], [462, 196], [476, 214],
-    [474, 232], [452, 240], [380, 242], [280, 242], [190, 240], [136, 232], [112, 220],
+    [140, 204], [200, 200], [270, 198], [330, 192], [370, 182], [404, 174], [432, 184], [456, 200], [474, 216],
+    [472, 230], [450, 236], [380, 238], [280, 238], [200, 236], [156, 228], [138, 216],
   ],
   true,
   0.5,
 );
 const HEAD = smoothPath(
-  [[388, 170], [412, 160], [432, 164], [444, 178], [440, 198], [420, 206], [396, 200]],
+  [[392, 180], [414, 172], [432, 176], [442, 190], [436, 206], [416, 212], [396, 206]],
   true,
   0.55,
 );
@@ -353,8 +350,8 @@ function siphonMarks(): string {
 
 function footMottle(): string {
   return (
-    scatterSpots(404, { x: 110, y: 186, w: 370, h: 56 }, { count: 70, rMin: 1.2, rMax: 3.6, color: MOTTLE, opacity: 0.45, ellipse: 1.8 }) +
-    scatterSpots(808, { x: 110, y: 186, w: 370, h: 56 }, { count: 40, rMin: 0.8, rMax: 1.8, color: '#5f2a18', opacity: 0.4 })
+    scatterSpots(404, { x: 136, y: 176, w: 344, h: 62 }, { count: 60, rMin: 1, rMax: 3, color: MOTTLE, opacity: 0.4, ellipse: 1.9 }) +
+    scatterSpots(808, { x: 136, y: 176, w: 344, h: 62 }, { count: 36, rMin: 0.7, rMax: 1.5, color: '#5f2a18', opacity: 0.35 })
   );
 }
 
@@ -363,14 +360,14 @@ function seabed(): string {
   const r = rng(64);
   let pebbles = '';
   for (let i = 0; i < 26; i++) {
-    const x = 20 + r() * 520;
-    const y = 244 + r() * 20;
+    const x = 60 + r() * 450;
+    const y = 242 + r() * 18;
     const rr = 1.5 + r() * 4;
     const c = ['#d9c7a3', '#c7b28a', '#e9dcc0', '#b9a07a'][Math.floor(r() * 4)];
     pebbles += `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rr * 1.4)}" ry="${f(rr)}" fill="${c}" opacity="0.85"/>`;
   }
   return (
-    `<path d="M0 252C120 236 260 238 380 240C460 241 520 246 560 250V268H0Z" fill="${u.url('sand')}"/>` +
+    `<ellipse cx="290" cy="262" rx="290" ry="30" fill="${u.url('sand')}"/>` +
     pebbles
   );
 }
@@ -381,6 +378,8 @@ const defs = joinDefs(
   clip(u('whorlClip'), WHORL),
   clip(u('siphonClip'), SIPHON.d),
   clip(u('footClip'), FOOT),
+  clip(u('rostrumClip'), ROSTRUM.d),
+  clip(u('headClip'), HEAD),
   rimGradient(u('rim'), '#ffffff', 0.85),
   linear(u('shellBase'), [
     [0, '#9b4a2a'],
@@ -404,9 +403,9 @@ const defs = joinDefs(
     [0.12, '#ffffff', 0.0],
     [0.24, '#ffffff', 0.28],
     [0.38, '#ffffff', 0.0],
-    [0.62, '#2a0d05', 0.12],
-    [0.9, '#2a0d05', 0.42],
-    [1, '#2a0d05', 0.3],
+    [0.62, '#2a0d05', 0.08],
+    [0.9, '#2a0d05', 0.3],
+    [1, '#2a0d05', 0.22],
   ]),
   linear(u('fleshFill'), [
     [0, '#f6e4d9'],
@@ -432,9 +431,10 @@ const defs = joinDefs(
     [0.7, '#8a3a26'],
     [1, '#e0a07c'],
   ]),
-  linear(u('sand'), [
-    [0, '#e7d7b4', 0.95],
-    [1, '#b79f78', 0.95],
+  radial(u('sand'), [
+    [0, '#e9dbbb', 0.95],
+    [0.7, '#cdb88f', 0.75],
+    [1, '#b79f78', 0],
   ]),
   radial(u('shadow'), [
     [0, '#1b2a2e', 0.45],
@@ -474,7 +474,7 @@ const art: CreatureArt = {
       role: 'detail',
       bend: false,
       z: 'back',
-      pivot: [414, 134],
+      pivot: [402, 149],
       anim: { type: 'rotate', amp: 0.09, speed: 1 },
       svg:
         `<path d="${SIPHON.d}" fill="${u.url('siphonFill')}"/>` +
@@ -498,12 +498,12 @@ const art: CreatureArt = {
       name: 'foot',
       role: 'body',
       svg:
-        `<ellipse cx="300" cy="244" rx="190" ry="10" fill="${u.url('shadow')}" filter="${u.url('soft')}"/>` +
+        `<ellipse cx="300" cy="238" rx="186" ry="9" fill="${u.url('shadow')}" filter="${u.url('soft')}"/>` +
         `<path d="${FOOT}" fill="${u.url('fleshFill')}"/>` +
         `<g clip-path="${u.url('footClip')}">` +
         footMottle() +
         // mép đế chân sẫm
-        `<path d="M112 222C150 236 220 240 300 240C380 240 440 238 474 228" fill="none" stroke="#8d5a46" stroke-opacity="0.45" stroke-width="5" filter="${u.url('soft')}"/>` +
+        `<path d="M136 222C170 234 230 238 300 238C380 238 440 236 474 226" fill="none" stroke="#8d5a46" stroke-opacity="0.45" stroke-width="5" filter="${u.url('soft')}"/>` +
         `</g>` +
         `<path d="${FOOT}" fill="none" stroke="#7d4636" stroke-opacity="0.5" stroke-width="1.4"/>`,
     },
@@ -512,12 +512,16 @@ const art: CreatureArt = {
       role: 'body',
       svg:
         `<path d="${HEAD}" fill="${u.url('fleshFill')}" stroke="#7d4636" stroke-opacity="0.45" stroke-width="1.2"/>` +
-        scatterSpots(222, { x: 392, y: 164, w: 50, h: 38 }, { count: 12, rMin: 0.9, rMax: 2.2, color: MOTTLE, opacity: 0.45 }) +
+        `<g clip-path="${u.url('headClip')}">` +
+        scatterSpots(222, { x: 392, y: 170, w: 52, h: 44 }, { count: 14, rMin: 0.9, rMax: 2.2, color: MOTTLE, opacity: 0.45 }) +
+        `</g>` +
         // vòi miệng loe hình phễu (rostrum) – để nuốt cá
         `<path d="${ROSTRUM.d}" fill="${u.url('fleshFill')}" stroke="#7d4636" stroke-opacity="0.5" stroke-width="1.2"/>` +
         `<path d="${smoothPath(ROSTRUM.L)}" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.6"/>` +
-        scatterSpots(333, { x: 430, y: 178, w: 52, h: 24 }, { count: 10, rMin: 0.8, rMax: 1.8, color: '#b0563a', opacity: 0.5 }) +
-        `<ellipse cx="${f(ROSTRUM.end[0])}" cy="${f(ROSTRUM.end[1])}" rx="5.5" ry="15" fill="${u.url('rostrumIn')}" stroke="#f3c9b8" stroke-width="1.6" transform="rotate(${f(ROSTRUM.ang)} ${f(ROSTRUM.end[0])} ${f(ROSTRUM.end[1])})"/>`,
+        `<g clip-path="${u.url('rostrumClip')}">` +
+        scatterSpots(333, { x: 424, y: 186, w: 58, h: 32 }, { count: 14, rMin: 0.8, rMax: 1.8, color: '#b0563a', opacity: 0.5 }) +
+        `</g>` +
+        `<ellipse cx="${f(ROSTRUM.end[0])}" cy="${f(ROSTRUM.end[1])}" rx="4.5" ry="12.5" fill="${u.url('rostrumIn')}" stroke="#f3c9b8" stroke-width="1.6" transform="rotate(${f(ROSTRUM.ang)} ${f(ROSTRUM.end[0])} ${f(ROSTRUM.end[1])})"/>`,
     },
     {
       name: 'shell',

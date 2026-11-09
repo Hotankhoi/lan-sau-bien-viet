@@ -90,7 +90,7 @@ const MANTLE =
 // Đầu: gồ mắt, thu dần về vành tay
 const HEAD = smoothPath(
   [
-    [398, 112], [426, 105], [452, 106], [476, 114], [498, 126], [514, 140], [523, 158],
+    [398, 115], [426, 110], [452, 109], [476, 115], [498, 126], [514, 140], [523, 158],
     [520, 180], [506, 196], [482, 208], [452, 214], [422, 214], [400, 210],
   ],
   true,
@@ -117,8 +117,8 @@ function zebra(): string {
     const t = topY(x);
     const h = botY(x) - t;
     const edge = Math.min(1, (x - 50) / 50, (420 - x) / 40);
-    const depth = h * (0.46 + r() * 0.2) * (0.6 + 0.4 * edge);
-    const w = (8 + r() * 6) * (0.55 + 0.45 * edge);
+    const depth = h * (0.5 + r() * 0.18) * (0.6 + 0.4 * edge);
+    const w = (12 + r() * 7) * (0.55 + 0.45 * edge);
     const n = 5;
     const left: P[] = [];
     const right: P[] = [];
@@ -126,7 +126,7 @@ function zebra(): string {
       const s = k / n;
       const yy = t - 4 + depth * s;
       const wob = Math.sin(s * Math.PI * 2 + x * 0.07) * 2.6 + (r() - 0.5) * 1.6 - s * 7;
-      const ww = w * (1 - s * 0.7);
+      const ww = w * (1 - s * 0.62);
       left.push([x + wob - ww / 2, yy]);
       right.push([x + wob + ww / 2, yy]);
     }
@@ -134,17 +134,17 @@ function zebra(): string {
     // vạch kem sáng giữa hai sọc
     const lx = x + w / 2 + 5 + r() * 3;
     const lt = topY(lx);
-    light += `<path d="M${f1(lx + 1)} ${f1(lt + 3)}Q${f1(lx - 3)} ${f1(lt + depth * 0.4)} ${f1(lx - 4)} ${f1(lt + depth * 0.8)}"/>`;
+    light += `<path d="M${f1(lx + 1)} ${f1(lt + 4)}C${f1(lx + 4)} ${f1(lt + depth * 0.25)} ${f1(lx - 5)} ${f1(lt + depth * 0.45)} ${f1(lx - 4)} ${f1(lt + depth * 0.7)}"/>`;
     // nhánh rẽ nhỏ (sọc vằn hay chẻ đôi)
     if (r() > 0.55) {
       const by = t + depth * (0.35 + r() * 0.2);
       dark += `<path d="M${f1(x - 1)} ${f1(by)}Q${f1(x - 8)} ${f1(by + 8)} ${f1(x - 12)} ${f1(by + 16)}" fill="none" stroke="${u.url('stripe')}" stroke-width="2.6" stroke-linecap="round"/>`;
     }
-    x += 15 + r() * 7 + w * 0.8;
+    x += 14 + r() * 8 + w * 0.75;
   }
   return (
     `<g fill="${u.url('stripe')}">${dark}</g>` +
-    `<g fill="none" stroke="${CREAM_L}" stroke-opacity="0.38" stroke-width="2.2" stroke-linecap="round">${light}</g>`
+    `<g fill="none" stroke="${CREAM_L}" stroke-opacity="0.24" stroke-width="2.6" stroke-linecap="round">${light}</g>`
   );
 }
 
@@ -183,7 +183,7 @@ const theEye = eye(u, 'eye', {
   cx: 454,
   cy: 146,
   r: 17,
-  iris: ['#e6dcc2', '#7a6748'],
+  iris: ['#d8c89a', '#5e4a32'],
   pupil: 'w',
   socket: '#4a2b3c',
   pupilColor: '#0b0a0e',
@@ -257,7 +257,7 @@ function finPoints(x0: number, x1: number, side: -1 | 1, H: number, lobe: boolea
     const s = i / steps;
     const [nx, ny] = normalAt(x, side);
     const y = f(x);
-    const prof = lobe ? 0.7 + 0.3 * Math.sin(Math.PI * s) : 1;
+    const prof = lobe ? 0.78 + 0.22 * Math.sin(Math.PI * s) : 1;
     const h = H * prof * finTaper(x);
     outer.push([x + nx * h, y + ny * h]);
     inner.push([x - nx * inset, y - ny * inset]);
@@ -287,8 +287,8 @@ function finLayers(side: -1 | 1, n: number, H: number): ArtLayer[] {
   const seg = (FIN_X1 - FIN_X0) / n;
   for (let i = 0; i < n; i++) {
     // thuỳ chồng nhẹ sang hai bên để mép vây liền mạch
-    const x0 = Math.max(FIN_X0, FIN_X0 + i * seg - seg * 0.18);
-    const x1 = Math.min(FIN_X1, FIN_X0 + (i + 1) * seg + seg * 0.18);
+    const x0 = Math.max(FIN_X0, FIN_X0 + i * seg - seg * 0.0);
+    const x1 = Math.min(FIN_X1, FIN_X0 + (i + 1) * seg + seg * 0.0);
     const xm = FIN_X0 + (i + 0.5) * seg;
     const py = side < 0 ? topY(xm) : botY(xm);
     layers.push({

@@ -66,7 +66,10 @@ void main() {
   vec3 absorbed = col * vec3(1.0 - uAbsorb * 0.92, 1.0 - uAbsorb * 0.38, 1.0 - uAbsorb * 0.06);
   float lum = dot(absorbed, vec3(0.299, 0.587, 0.114));
   absorbed = mix(absorbed, vec3(lum) * vec3(0.55, 0.9, 1.15), uAbsorb * 0.35);
-  vec3 outc = mix(absorbed, col * (1.0 + 0.12 * lit), lit);
+  vec3 outc = mix(absorbed, col * (1.0 + 0.3 * lit), lit);
+  // chùm sáng thể tích (bụi nước phản chiếu ánh đèn ấm)
+  float beam = cone * uLampOn * (1.0 - clamp(dist / uLampRange, 0.0, 1.0));
+  outc += vec3(0.95, 0.88, 0.7) * beam * 0.13;
 
   // ---- sương nước ----
   outc = mix(outc, uWater, uFog * (1.0 - lit * 0.85));

@@ -44,7 +44,7 @@ const PAPILLA = '#F7EED3';
 const f1 = (n: number) => n.toFixed(1);
 
 // ---------- Hệ trục thân: gốc O ở cổ, trục AX hướng về chóp áo (lên-trái), NM là phía lưng ----------
-const O: P = [222, 150];
+const O: P = [214, 170];
 const AX: P = [-0.866, -0.5];
 const NM: P = [0.5, -0.866];
 const W = (uu: number, vv: number): P => [O[0] + AX[0] * uu + NM[0] * vv, O[1] + AX[1] * uu + NM[1] * vv];
@@ -98,14 +98,14 @@ interface ArmSpec {
 }
 
 const ARMS: ArmSpec[] = [
-  { name: 'armR4', base: W(-62, 34), a: -38, L: 190, w: 15, k0: 0.0035, k1: 0.02, back: true, amp: 0.1, ph: 0 },
-  { name: 'armL1', base: W(-72, 20), a: -14, L: 225, w: 17, k0: 0.0015, k1: 0.021, back: false, amp: 0.11, ph: 0.8 },
-  { name: 'armR3', base: W(-78, 6), a: 6, L: 215, w: 15, k0: -0.0008, k1: -0.019, back: true, amp: 0.1, ph: 1.6 },
-  { name: 'armL2', base: W(-76, -10), a: 26, L: 230, w: 17, k0: 0.0018, k1: 0.017, back: false, amp: 0.12, ph: 2.4 },
-  { name: 'armR2', base: W(-68, -24), a: 50, L: 200, w: 15, k0: -0.002, k1: -0.021, back: true, amp: 0.1, ph: 3.2 },
-  { name: 'armL3', base: W(-58, -34), a: 70, L: 195, w: 17, k0: 0.0005, k1: -0.02, back: false, amp: 0.11, ph: 4.0 },
-  { name: 'armR1', base: W(-46, -42), a: 98, L: 160, w: 14, k0: 0.003, k1: 0.02, back: true, amp: 0.1, ph: 4.8 },
-  { name: 'armL4', base: W(-34, -46), a: 122, L: 150, w: 16, k0: 0.004, k1: 0.024, back: false, amp: 0.12, ph: 5.6 },
+  { name: 'armR4', base: W(-60, 32), a: -40, L: 172, w: 21, k0: 0.004, k1: 0.024, back: true, amp: 0.1, ph: 0 },
+  { name: 'armL1', base: W(-70, 18), a: -15, L: 205, w: 25, k0: 0.0018, k1: 0.024, back: false, amp: 0.11, ph: 0.8 },
+  { name: 'armR3', base: W(-76, 4), a: 6, L: 196, w: 21, k0: -0.001, k1: -0.022, back: true, amp: 0.1, ph: 1.6 },
+  { name: 'armL2', base: W(-74, -10), a: 27, L: 210, w: 25, k0: 0.002, k1: 0.02, back: false, amp: 0.12, ph: 2.4 },
+  { name: 'armR2', base: W(-66, -24), a: 50, L: 182, w: 21, k0: -0.0025, k1: -0.024, back: true, amp: 0.1, ph: 3.2 },
+  { name: 'armL3', base: W(-56, -32), a: 72, L: 180, w: 25, k0: 0.0005, k1: -0.023, back: false, amp: 0.11, ph: 4.0 },
+  { name: 'armR1', base: W(-44, -40), a: 100, L: 148, w: 20, k0: 0.0035, k1: 0.024, back: true, amp: 0.1, ph: 4.8 },
+  { name: 'armL4', base: W(-32, -44), a: 124, L: 140, w: 23, k0: 0.0045, k1: 0.028, back: false, amp: 0.12, ph: 5.6 },
 ];
 
 interface ArmSample {
@@ -120,12 +120,12 @@ function armSamples(s: ArmSpec): ArmSample[] {
   const ds = s.L / N_ARM;
   let th = (s.a * Math.PI) / 180;
   // lùi gốc vào trong đầu một đoạn để khi tay xoay không hở khe
-  let x = s.base[0] - Math.cos(th) * 8;
-  let y = s.base[1] - Math.sin(th) * 8;
+  let x = s.base[0] - Math.cos(th) * 16;
+  let y = s.base[1] - Math.sin(th) * 16;
   const out: ArmSample[] = [];
   for (let i = 0; i <= N_ARM; i++) {
     const t = i / N_ARM;
-    out.push({ x, y, th, w: s.w * (0.1 + 0.9 * Math.pow(1 - t, 0.85)) });
+    out.push({ x, y, th, w: s.w * (0.09 + 0.91 * Math.pow(1 - t, 1.05)) });
     th += (s.k0 + s.k1 * t * t * t) * ds;
     x += Math.cos(th) * ds;
     y += Math.sin(th) * ds;
@@ -134,12 +134,13 @@ function armSamples(s: ArmSpec): ArmSample[] {
 }
 const off = (p: ArmSample, f: number): P => [p.x - Math.sin(p.th) * p.w * f, p.y + Math.cos(p.th) * p.w * f];
 
-function armOutline(sm: ArmSample[]): string {
+function armOutline(sm: ArmSample[], closed = true): string {
   const left = sm.map((p) => off(p, 0.5));
   const right = sm.map((p) => off(p, -0.5)).reverse();
   const e = sm[sm.length - 1];
   const tip: P = [e.x + Math.cos(e.th) * e.w * 0.7, e.y + Math.sin(e.th) * e.w * 0.7];
-  return smoothPath([...left, tip, ...right], true);
+  // bản hở: bỏ đoạn khép ở gốc tay để không lộ "vết cắt" trên đầu
+  return closed ? smoothPath([...left, tip, ...right], true) : smoothPath([...left.slice(3), tip, ...right.slice(0, -3)]);
 }
 /** dải dọc tay giữa hai độ lệch fa..fb (tính theo bề ngang), từ mẫu i0..i1 */
 function armBand(sm: ArmSample[], fa: number, fb: number, i0 = 0, i1 = sm.length - 1): string {
@@ -199,12 +200,25 @@ function armSvg(s: ArmSpec, idx: number): { arm: string; alarm: string; defs: st
     linear(
       gradId,
       [
-        [0, mix(SKIN_D, '#000000', dark)],
-        [0.35, mix(SKIN, '#000000', dark)],
+        [0, mix(SKIN, '#000000', dark)],
+        [0.4, mix(mix(SKIN, SKIN_D, 0.3), '#000000', dark)],
         [1, mix(SKIN_L, '#000000', dark * 0.8)],
       ],
       { user: true, x1: first.x, y1: first.y, x2: last.x, y2: last.y },
-    );
+    ) +
+    // mask mờ dần ở gốc tay để tay phía trước "mọc" mềm ra từ đầu, không lộ vết cắt
+    (s.back
+      ? ''
+      : linear(
+          u(`fade_${s.name}`),
+          [
+            [0, '#000000'],
+            [0.35, '#666666'],
+            [1, '#ffffff'],
+          ],
+          { user: true, x1: first.x, y1: first.y, x2: first.x + Math.cos(first.th) * 34, y2: first.y + Math.sin(first.th) * 34 },
+        ) +
+        `<mask id="${u(`mask_${s.name}`)}" maskUnits="userSpaceOnUse" x="-100" y="-100" width="712" height="584"><rect x="-100" y="-100" width="712" height="584" fill="${u.url(`fade_${s.name}`)}"/></mask>`);
   // phía giác hút = phía trong của vòng cuộn đầu tay
   const side = s.k0 + s.k1 >= 0 ? 1 : -1;
   const hs = -side;
@@ -236,6 +250,7 @@ function armSvg(s: ArmSpec, idx: number): { arm: string; alarm: string; defs: st
     pap += `<circle cx="${f1(c[0])}" cy="${f1(c[1])}" r="${f1(0.5 + r() * p.w * 0.06)}"/>`;
   }
   const arm =
+    (s.back ? '' : `<g mask="${u.url(`mask_${s.name}`)}">`) +
     `<g fill="#F3E7C6" stroke="#8A6A3A" stroke-width="0.6" stroke-opacity="0.7">${suckers}</g>` +
     `<path d="${d}" fill="${u.url(`fill_${s.name}`)}"/>` +
     `<g clip-path="${u.url(`clip_${s.name}`)}">` +
@@ -248,7 +263,8 @@ function armSvg(s: ArmSpec, idx: number): { arm: string; alarm: string; defs: st
     `<g fill="${PAPILLA}" fill-opacity="0.75">${pap}</g>` +
     (s.back ? `<path d="${d}" fill="#24170a" fill-opacity="0.16"/>` : '') +
     `</g>` +
-    `<path d="${d}" fill="none" stroke="${LINE}" stroke-width="1.3" stroke-opacity="0.6" stroke-linejoin="round"/>`;
+    `<path d="${armOutline(sm, false)}" fill="none" stroke="${LINE}" stroke-width="1.4" stroke-opacity="0.6" stroke-linejoin="round" stroke-linecap="round"/>` +
+    (s.back ? '' : '</g>');
   const alarm =
     `<g clip-path="${u.url(`clip_${s.name}`)}">` +
     `<g fill="#3fd0ff" fill-opacity="0.5" filter="${u.url('halo')}">${spots.map((sp) => ringHalo(sp.c, sp.R)).join('')}</g>` +
@@ -299,8 +315,8 @@ function papillae(seed: number, n: number, inside: (x: number, y: number) => boo
     const x = box[0] + r() * box[2];
     const y = box[1] + r() * box[3];
     if (!inside(x, y)) continue;
-    const rr = 0.6 + r() * 1.5;
-    s += `<circle cx="${f1(x + 0.5)}" cy="${f1(y + 0.7)}" r="${f1(rr)}" fill="#5a3d12" fill-opacity="0.22"/><circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(rr)}" fill="${PAPILLA}" fill-opacity="0.8"/>`;
+    const rr = 0.5 + r() * 0.9;
+    s += `<circle cx="${f1(x + 0.5)}" cy="${f1(y + 0.7)}" r="${f1(rr)}" fill="#5a3d12" fill-opacity="0.22"/><circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(rr)}" fill="${PAPILLA}" fill-opacity="0.55"/>`;
     k++;
   }
   return s;
@@ -323,8 +339,8 @@ const inHead = (x: number, y: number) => {
 const theEye = eye(u, 'eye', {
   cx: EYE_C[0],
   cy: EYE_C[1],
-  r: 9.5,
-  iris: ['#EBCB72', '#7E5418'],
+  r: 7.6,
+  iris: ['#F0D27A', '#9A6A22'],
   pupil: 'slit',
   look: [0.35, 0.05],
 });
@@ -423,7 +439,7 @@ const mantleAlarm =
 const eyeTurret = (() => {
   const [x, y] = EYE_C;
   return (
-    `<ellipse cx="${f1(x - 1)}" cy="${f1(y + 1)}" rx="16" ry="14.5" fill="${u.url('turret')}" stroke="${LINE}" stroke-opacity="0.5" stroke-width="1.3"/>` +
+    `<ellipse cx="${f1(x - 1)}" cy="${f1(y + 1)}" rx="14" ry="12.5" fill="${u.url('turret')}" stroke="${LINE}" stroke-opacity="0.5" stroke-width="1.3"/>` +
     // mí trên & nếp mí dưới
     `<path d="M${f1(x - 13)} ${f1(y - 2)}Q${f1(x - 2)} ${f1(y - 15)} ${f1(x + 12)} ${f1(y - 4)}" fill="none" stroke="${LINE}" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>` +
     `<path d="M${f1(x - 11)} ${f1(y + 7)}Q${f1(x)} ${f1(y + 14)} ${f1(x + 11)} ${f1(y + 6)}" fill="none" stroke="${LINE}" stroke-opacity="0.3" stroke-width="1.1" stroke-linecap="round"/>` +
@@ -475,8 +491,8 @@ const mantleAnim = { type: 'pulse' as const, amp: 0.025, speed: 0.5 };
 const art: CreatureArt = {
   id: ID,
   viewBox: [512, 384],
-  lengthUnits: 440,
-  spineY: 180,
+  lengthUnits: 370,
+  spineY: 192,
   animation: 'cephalopod',
   cycleHz: 0.7,
   bendAmp: 0,

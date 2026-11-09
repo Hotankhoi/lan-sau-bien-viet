@@ -6,7 +6,7 @@
  * ống thoát nước bầu dục. Màng áo "thở" nhẹ (pulse), lấp lánh (glow), khép vỏ khi hoảng (alarm).
  */
 import type { CreatureArt } from '../contract';
-import { makeIds, linear, radial, blurFilter, organicTexture, dotPattern, rimGradient, rng, joinDefs } from '../style-bible';
+import { makeIds, linear, radial, blurFilter, organicTexture, dotPattern, rimGradient, rng, joinDefs, smoothPath } from '../style-bible';
 
 const u = makeIds('trai_tai_tuong');
 
@@ -31,8 +31,8 @@ const yFT: Fn = (x) => yF(x) - 40 * env(x) ** 0.5 + 9 * env(x) ** 0.6 * ph(x);
 /** đường giữa hai thùy màng áo */
 const yS: Fn = (x) => yF(x) + (yN(x) - yF(x)) * 0.54;
 /** mép màng áo (tràn qua mép vỏ, gợn nhẹ) */
-const yMT: Fn = (x) => yF(x) - 7 * env(x) ** 0.5 + 1.5 * Math.sin(x / 5.1) * env(x) ** 0.5;
-const yMB: Fn = (x) => yN(x) + 9 * env(x) ** 0.5 + 1.6 * Math.sin(x / 4.6 + 1) * env(x) ** 0.5;
+const yMT: Fn = (x) => yF(x) - 11 * env(x) ** 0.5 + 1.5 * Math.sin(x / 5.1) * env(x) ** 0.5;
+const yMB: Fn = (x) => yN(x) + 13 * env(x) ** 0.5 + 1.6 * Math.sin(x / 4.6 + 1) * env(x) ** 0.5;
 
 const CRESTS = [96, 188, 280, 372, 464];
 const TROUGHS = [142, 234, 326, 418];
@@ -140,7 +140,7 @@ function nearValve(mf: Fn, clipName: string, seed: number): { defs: string; svg:
   const du = PER / 2 / (X1 - X0);
   for (const x of CRESTS) {
     const uu = uOf(x);
-    for (const s of [0.36, 0.48, 0.59, 0.68, 0.76, 0.83, 0.89, 0.945]) {
+    for (const s of [0.4, 0.53, 0.645, 0.745, 0.83, 0.905]) {
       const c = nearPt(uu, s, mf);
       const c2 = nearPt(uu, s + 0.02, mf);
       const tl = Math.hypot(c2[0] - c[0], c2[1] - c[1]);
@@ -148,8 +148,8 @@ function nearValve(mf: Fn, clipName: string, seed: number): { defs: string; svg:
       const a = nearPt(uu - du, s, mf);
       const b = nearPt(uu + du, s, mf);
       const rw = Math.hypot(b[0] - a[0], b[1] - a[1]);
-      const w = rw * (0.5 + 0.12 * s) * (0.92 + r() * 0.16);
-      const h = w * (0.34 + 0.08 * s);
+      const w = rw * (0.5 + 0.1 * s) * (0.88 + r() * 0.2);
+      const h = w * (0.42 + 0.12 * s) * (0.9 + r() * 0.2);
       scales += flute(c, t, w, h, SCALE_TINTS[Math.floor(r() * SCALE_TINTS.length)], seed + Math.round(s * 100) + x);
     }
   }
@@ -250,21 +250,35 @@ const SIPHON: Pt = [372, yS(372) - 1];
 function streaks(upper: boolean, seed: number): string {
   const r = rng(seed);
   let s = '';
-  for (let x = MX0 + 6; x < MX1 - 6; x += 4.2 + r() * 4.2) {
+  for (let x = MX0 + 6; x < MX1 - 6; x += 7 + r() * 6) {
     const e = env(x);
     if (e < 0.12) continue;
     if (Math.abs(x - SIPHON[0]) < 22 && !upper) continue;
-    const ey = upper ? yMT(x) + 6 : yMB(x) - 6;
+    const edgeFn = upper ? yMT : yMB;
+    const base = upper ? yF : yN;
+    const ey = edgeFn(x) + (upper ? 6 : -6);
     const sy = yS(x) + (upper ? -1 : 1);
     const depth = Math.abs(sy - ey);
     if (depth < 6) continue;
-    const f = 0.28 + r() * 0.62;
-    const tipX = x + (r() - 0.5) * 7;
-    const tipY = ey + (sy - ey) * f;
-    const w = (2.2 + r() * 4.6) * (0.55 + 0.45 * e);
-    const my = (ey + tipY) / 2;
+    // pháp tuyến của mép (dùng mép vỏ mượt, không gợn) hướng vào trong thùy
+    const dy = ((base(x + 2) - base(x - 2)) / 4) * 0.38;
+    const nl = Math.hypot(dy, 1);
+    const dir = upper ? 1 : -1;
+    const nx = (-dy / nl) * dir;
+    const ny = (1 / nl) * dir;
+    const L = depth * (0.3 + r() * 0.42);
+    const w = (3.5 + r() * 6.5) * (0.55 + 0.45 * e);
     const c = pick(r);
-    s += `<path d="M${f1(x - w / 2)} ${f1(ey)}Q${f1(x - w * 0.62)} ${f1(my)} ${f1(tipX)} ${f1(tipY)}Q${f1(x + w * 0.62)} ${f1(my)} ${f1(x + w / 2)} ${f1(ey)}Z" fill="${c}" fill-opacity="${(0.62 + r() * 0.33).toFixed(2)}"/>`;
+    // trục cục bộ: dọc (nx,ny), ngang (-ny,nx)
+    const at = (a: number, bb: number): string => `${f1(x + nx * bb - ny * a)} ${f1(ey + ny * bb + nx * a)}`;
+    const tw = w * 0.42;
+    const wob = (r() - 0.5) * w * 0.8;
+    s += `<path d="M${at(-w / 2, 0)}C${at(-w * 0.6, L * 0.5)} ${at(-tw + wob, L * 0.8)} ${at(-tw + wob, L)}C${at(-tw + wob, L + w * 0.5)} ${at(tw + wob, L + w * 0.5)} ${at(tw + wob, L)}C${at(tw + wob, L * 0.8)} ${at(w * 0.6, L * 0.5)} ${at(w / 2, 0)}Z" fill="${c}" fill-opacity="${(0.5 + r() * 0.35).toFixed(2)}"/>`;
+    // đốm tách rời nối dài tia (kiểu loang)
+    if (r() < 0.45) {
+      const k = L + w * (0.9 + r() * 0.8);
+      s += `<ellipse cx="${f1(x + nx * k)}" cy="${f1(ey + ny * k)}" rx="${f1(w * 0.38)}" ry="${f1(w * 0.55)}" fill="${c}" fill-opacity="0.55" transform="rotate(${f1((Math.atan2(ny, nx) * 180) / Math.PI - 90)} ${f1(x + nx * k)} ${f1(ey + ny * k)})"/>`;
+    }
   }
   // đốm loang
   for (let i = 0; i < 110; i++) {
@@ -309,8 +323,8 @@ function mantle(): string {
     // bóng màng áo đổ lên vỏ gần
     `<path d="${poly(mantleBotPts.map(([x, y]): Pt => [x, y + 4]), false)}" fill="none" stroke="#3b2c18" stroke-opacity="0.45" stroke-width="7" filter="${u.url('soft3')}"/>` +
     `<path d="${MANTLE_D}" fill="${u.url('mantleBase')}"/>` +
-    `<g clip-path="${u.url('upperClip')}">${streaks(true, 101)}</g>` +
-    `<g clip-path="${u.url('lowerClip')}">${streaks(false, 202)}</g>` +
+    `<g clip-path="${u.url('upperClip')}"><g filter="${u.url('soft1')}">${streaks(true, 101)}</g></g>` +
+    `<g clip-path="${u.url('lowerClip')}"><g filter="${u.url('soft1')}">${streaks(false, 202)}</g></g>` +
     `<g clip-path="${u.url('mantleClip')}">` +
     // lấm tấm sẫm
     `<path d="${MANTLE_D}" fill="${u.url('stipple')}"/>` +
@@ -376,22 +390,33 @@ function closedShell(): string {
 // ---------- Nền rạn (chỉ thẻ) ----------
 function reef(): string {
   const r = rng(31);
-  const pts: Pt[] = [[0, 400]];
-  for (let x = 0; x <= 560; x += 16) {
-    const hump = 300 + 50 * Math.cos(((x - 280) / 300) * Math.PI) * -0.4 + (r() - 0.5) * 14;
-    pts.push([x, Math.min(392, hump + Math.abs(x - 280) * -0.08 + 12)]);
+  const pts: Pt[] = [];
+  for (let x = 22; x <= 538; x += 16) {
+    const k = (x - 280) / 258;
+    const y = 312 + 70 * k ** 4 + (r() - 0.5) * 9;
+    pts.push([x, Math.min(398, y)]);
   }
-  pts.push([560, 400]);
-  let blobs = '';
-  for (let i = 0; i < 16; i++) {
-    const x = 10 + r() * 540;
-    const y = 330 + r() * 60;
-    blobs += `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(8 + r() * 18)}" ry="${f1(4 + r() * 8)}" fill="${r() < 0.5 ? '#b55a78' : '#7a5f8a'}" fill-opacity="0.55"/>`;
+  pts.push([540, 399], [20, 399]);
+  let patches = '';
+  for (let i = 0; i < 12; i++) {
+    const x = 30 + r() * 500;
+    const k = (x - 280) / 258;
+    const y = 326 + 84 * k ** 4 + r() * 26;
+    if (y > 390) continue;
+    const c = r() < 0.55 ? '#c4677f' : r() < 0.5 ? '#8a6aa0' : '#6f8a5a';
+    const blob: Pt[] = [];
+    const rx = 10 + r() * 16;
+    const ry = 3 + r() * 5;
+    for (let a = 0; a < 10; a++) {
+      const th = (a / 10) * Math.PI * 2;
+      const kk = 0.7 + r() * 0.5;
+      blob.push([x + Math.cos(th) * rx * kk, y + Math.sin(th) * ry * kk]);
+    }
+    patches += `<path d="${smoothPath(blob, true)}" fill="${c}" fill-opacity="0.6"/>`;
   }
   return (
-    `<path d="${poly(pts)}" fill="${u.url('rock')}"/>` +
-    `<g filter="${u.url('tex')}">${blobs}</g>` +
-    `<ellipse cx="280" cy="372" rx="230" ry="20" fill="#0d0a10" opacity="0.45" filter="${u.url('soft4')}"/>`
+    `<g filter="${u.url('tex')}"><path d="${smoothPath(pts, true)}" fill="${u.url('rock')}"/>${patches}</g>` +
+    `<ellipse cx="280" cy="374" rx="232" ry="18" fill="#0d0a10" opacity="0.5" filter="${u.url('soft4')}"/>`
   );
 }
 
@@ -476,11 +501,13 @@ const defs = joinDefs(
   linear(
     u('rock'),
     [
-      [0, '#5a4a52'],
-      [1, '#241a22'],
+      [0, '#6a5660'],
+      [0.5, '#3a2c36'],
+      [1, '#1c141c', 0.9],
     ],
-    { user: true, x1: 0, y1: 290, x2: 0, y2: 400 },
+    { user: true, x1: 0, y1: 300, x2: 0, y2: 400 },
   ),
+  blurFilter(u('soft1'), 0.9),
   blurFilter(u('soft3'), 3),
   blurFilter(u('soft4'), 4.5),
   organicTexture(u('tex'), { freq: 0.09, octaves: 3, strength: 0.32, seed: 11 }),

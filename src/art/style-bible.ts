@@ -178,7 +178,7 @@ export function scalePattern(id: string, o: { size?: number; color?: string; opa
   const h = s * 0.8;
   const arc = (x: number, y: number) => `M${x - s / 2} ${y} A ${s / 2} ${s / 2} 0 0 0 ${x + s / 2} ${y}`;
   // vảy nhìn từ bên: cung mở về phía đuôi (bên trái)
-  return `<pattern id="${id}" width="${s}" height="${h * 2}" patternUnits="userSpaceOnUse"><g fill="none" stroke="${c}" stroke-width="${sw}" stroke-opacity="${op}" transform="rotate(90 ${s / 2} ${h})">${arc(s / 2, 0)}${arc(0, h)}${arc(s, h)}${arc(s / 2, h * 2)}</g></pattern>`;
+  return `<pattern id="${id}" width="${s}" height="${h * 2}" patternUnits="userSpaceOnUse" patternTransform="rotate(90)"><g fill="none" stroke="${c}" stroke-width="${sw}" stroke-opacity="${op}">${arc(s / 2, 0)}${arc(0, h)}${arc(s, h)}${arc(s / 2, h * 2)}</g></pattern>`;
 }
 
 /** Pattern chấm tròn đều (đốm). */
@@ -234,7 +234,7 @@ export function clip(id: string, d: string): string {
 
 /**
  * Mắt chuẩn. Trả về { defs, svg }.
- * pupil: 'round' (cá), 'w' (mực nang), 'slit' (ngang – bạch tuộc), 'small'.
+ * pupil: 'round' (cá), 'w' (mực nang), 'slit' (ngang – bạch tuộc), 'vslit' (dọc – cá mập, cá đuối), 'small'.
  */
 export function eye(
   u: Ids,
@@ -244,7 +244,7 @@ export function eye(
     cy: number;
     r: number;
     iris: [inner: string, outer: string];
-    pupil?: 'round' | 'w' | 'slit' | 'small';
+    pupil?: 'round' | 'w' | 'slit' | 'vslit' | 'small';
     socket?: string; // màu viền da quanh mắt
     pupilColor?: string;
     look?: [number, number]; // lệch đồng tử -1..1
@@ -278,6 +278,9 @@ export function eye(
       break;
     case 'slit':
       pupil = `<rect x="${px - r * 0.62}" y="${py - r * 0.14}" width="${r * 1.24}" height="${r * 0.28}" rx="${r * 0.14}" fill="${pc}"/>`;
+      break;
+    case 'vslit':
+      pupil = `<ellipse cx="${px}" cy="${py}" rx="${r * 0.16}" ry="${r * 0.62}" fill="${pc}"/>`;
       break;
     case 'w': {
       const w = r * 0.7;
@@ -355,7 +358,7 @@ export function standardBody(
     flank: string;
     belly: string;
     outlineColor: string;
-    scales?: { size?: number; color?: string; opacity?: number } | false;
+    scales?: { size?: number; color?: string; opacity?: number; stroke?: number } | false;
     flankAt?: number;
     rimOpacity?: number;
   },

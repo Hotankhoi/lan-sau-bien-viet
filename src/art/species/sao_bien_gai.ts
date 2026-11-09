@@ -115,14 +115,14 @@ const ARMS: Arm[] = (() => {
   const r = rng(4242);
   const out: Arm[] = [];
   for (let i = 0; i < N_ARMS; i++) {
-    const theta = (i / N_ARMS) * Math.PI * 2 + 0.11 + (r() - 0.5) * 0.14;
+    const theta = (i / N_ARMS) * Math.PI * 2 + 0.31 + (r() - 0.5) * 0.14;
     const front = Math.sin(theta) > 0.2;
     out.push({
       i,
       theta,
       len: 162 + r() * 26,
       w0: 25 + r() * 4,
-      wig: (r() - 0.5) * 16,
+      wig: (r() - 0.5) * 26,
       ph: r() * 2,
       r0: front ? 70 : 48,
       curl: r() < 0.35 ? 6 + r() * 8 : 0,
@@ -140,9 +140,9 @@ function armFrame(a: Arm, t: number) {
   const dist = a.r0 + (a.len - a.r0) * t;
   const off = a.wig * Math.sin(Math.PI * t * 0.9 + a.ph) * t;
   const H0 = hDisc(a.r0) - 2;
-  const H = 3 + (H0 - 3) * Math.pow(1 - t, 2.1) + a.curl * Math.pow(Math.max(0, t - 0.7) / 0.3, 2);
+  const H = 3 + (H0 - 3) * Math.pow(Math.max(0, 1 - t), 2.1) + a.curl * Math.pow(Math.max(0, t - 0.7) / 0.3, 2);
   const c: V3 = [ux * dist + n[0] * off, uz * dist + n[1] * off, H];
-  const w = a.w0 * (1 - 0.82 * Math.pow(t, 0.85)) + 1.5;
+  const w = a.w0 * (1 - 0.82 * Math.pow(Math.max(0, t), 0.85)) + 1.5;
   return { c, n, u: [ux, uz, 0] as V3, w, H };
 }
 
@@ -301,7 +301,7 @@ function discPath(): string {
   const M = 48;
   for (let i = 0; i < M; i++) {
     const phi = (i / M) * Math.PI * 2;
-    const lobe = 1 + 0.05 * Math.cos(phi * N_ARMS - 0.11 * N_ARMS);
+    const lobe = 1 + 0.05 * Math.cos(phi * N_ARMS - 0.31 * N_ARMS);
     const s = Math.sin(phi);
     const rr = R * lobe * (1 + 0.06 * Math.max(0, s));
     const h = s < 0 ? HE + (HC - HE) * 0.62 * Math.pow(-s, 0.8) : HE - (HE - 2) * Math.pow(s, 0.7);

@@ -162,7 +162,7 @@ function edgeKnobs(): string {
   let s = '';
   const top = BODY_PTS.slice(1, 4).concat(BODY_PTS.slice(6, 9));
   top.forEach(([x, y], i) => {
-    s += wart(x + (r() - 0.5) * 6, y + 3, 4.5 + r() * 4, i % 3 === 0 ? CRUST : i % 3 === 1 ? STONE_L : PINK, 800 + i, 0.95);
+    s += wart(x + (r() - 0.5) * 6, y + 3, 4.5 + r() * 4, i % 3 === 0 ? CRUST : i % 3 === 1 ? STONE_L : '#8a6a5e', 800 + i, 0.85);
   });
   const jaw: P[] = [[588, 240], [574, 256], [555, 270], [602, 214], [603, 186]];
   jaw.forEach(([x, y], i) => {
@@ -367,8 +367,8 @@ function fleshyFin(
 
 // ---------- Defs ----------
 const body = standardBody(u, BODY, {
-  dorsal: '#6e554c',
-  flank: '#80635a',
+  dorsal: '#6b4e46',
+  flank: '#865f57',
   belly: '#a58a7b',
   outlineColor: OUTLINE,
   scales: false,
@@ -378,8 +378,8 @@ const body = standardBody(u, BODY, {
 
 const theEye = eye(u, 'eye', {
   cx: 541,
-  cy: 128,
-  r: 5.6,
+  cy: 130.5,
+  r: 4.8,
   iris: ['#f08a3c', '#7a1c10'],
   look: [0.4, -0.1],
 });
@@ -409,6 +409,7 @@ const defs = joinDefs(
   stoneFilter(u('stone'), { freq: 0.045, disp: 7, grain: 0.14, k: 0.45, seed: 4 }),
   stoneFilter(u('stoneFin'), { freq: 0.06, disp: 5, grain: 0.16, k: 0.38, seed: 12 }),
   blurFilter(u('soft'), 2.5),
+  blurFilter(u('blur1'), 1.3),
   blurFilter(u('soft6'), 6),
   radial(
     u('wart'),
@@ -457,8 +458,8 @@ const defs = joinDefs(
     { user: true, cx: PEC_PIVOT[0], cy: PEC_PIVOT[1], r: 140 },
   ),
   linear(u('lip'), [
-    [0, '#f2d8c4'],
-    [1, '#c98f86'],
+    [0, '#e6c0ae'],
+    [1, '#a8645e'],
   ]),
   clip(u('dorsalClip'), DORSAL),
   clip(u('caudalClip'), CAUDAL.d),
@@ -510,12 +511,13 @@ function bodyLayer(): string {
     `<path d="${blob(470, 160, 120, 34, 7, 12, 0.3)}" fill="${CRUST}" fill-opacity="0.22"/>` +
     `<path d="${blob(548, 205, 46, 52, 9, 11, 0.3)}" fill="${PINK}" fill-opacity="0.3"/>` +
     `<path d="${blob(300, 220, 90, 30, 11, 12, 0.35)}" fill="${MOSS_D}" fill-opacity="0.25"/>` +
+    `<g filter="${u.url('blur1')}">` +
     patches(17, { x: 150, y: 120, w: 460, h: 170 }, [
       { color: STONE_D, count: 10, rMin: 12, rMax: 26, op: 0.42 },
-      { color: BRICK, count: 12, rMin: 8, rMax: 22, op: 0.55 },
+      { color: BRICK, count: 13, rMin: 8, rMax: 22, op: 0.65 },
       { color: PINK, count: 7, rMin: 8, rMax: 18, op: 0.4 },
       { color: MOSS_D, count: 7, rMin: 7, rMax: 16, op: 0.45 },
-      { color: MOSS, count: 10, rMin: 5, rMax: 14, op: 0.55 },
+      { color: MOSS, count: 11, rMin: 5, rMax: 14, op: 0.65 },
       { color: CRUST, count: 16, rMin: 4, rMax: 11, op: 0.5 },
     ]) +
     // đốm cam / hổ phách nổi bật (ref3, ref5)
@@ -523,6 +525,7 @@ function bodyLayer(): string {
       { color: ORANGE, count: 6, rMin: 4, rMax: 9, op: 0.8 },
       { color: AMBER, count: 5, rMin: 3, rMax: 7, op: 0.8 },
     ]) +
+    `</g>` +
     speckle(19, { x: 150, y: 120, w: 460, h: 170 }, 420, 0.6, 1.7, CRUST, 0.55) +
     speckle(23, { x: 150, y: 120, w: 460, h: 170 }, 160, 0.8, 2, '#2a1a16', 0.35) +
     bodyWarts() +
@@ -536,26 +539,27 @@ function bodyLayer(): string {
 
 function headLayer(): string {
   // gờ xương quanh mắt – mắt nằm sâu trong hốc
-  const knobD = blob(540, 131, 16, 12.5, 404, 10, 0.25);
+  const knobD = blob(540, 135, 16, 9, 404, 10, 0.25);
   const knob =
     `<path d="${knobD}" fill="${u.url('knob')}"/>` +
-    `<path d="${knobD}" fill="${u.url('wart')}" opacity="0.6"/>` +
-    `<ellipse cx="541" cy="128.5" rx="8.4" ry="7.4" fill="#1a0e0b" opacity="0.8"/>`;
+    `<path d="${knobD}" fill="${u.url('wart')}" opacity="0.35"/>` +
+    `<path d="${knobD}" fill="${BRICK}" fill-opacity="0.25"/>` +
+    `<ellipse cx="541" cy="130.5" rx="7.6" ry="6.6" fill="#1a0e0b" opacity="0.85"/>`;
   // mí thịt che nửa trên mắt + tua nhỏ
-  const lid =
-    `<path d="M532.5 126Q541 117 550 125Q546 123 541 123Q536 123 532.5 126Z" fill="${STONE}" stroke="${OUTLINE}" stroke-opacity="0.5" stroke-width="0.6"/>` +
-    `<path d="M538 121L536 113L541 120M544 121L547 114L546 122" fill="${STONE_L}" stroke="${OUTLINE}" stroke-opacity="0.45" stroke-width="0.5"/>`;
   // hõm lõm sau mắt + rãnh giữa hai mắt
   const pit =
     `<ellipse cx="510" cy="151" rx="15" ry="8" fill="#1e110e" opacity="0.5" filter="${u.url('soft')}"/>` +
     `<path d="M497 157Q510 163 525 154" fill="none" stroke="${CRUST}" stroke-opacity="0.32" stroke-width="1.2"/>`;
   // miệng rộng hướng lên trên: khe tối mảnh + môi trên & hàm dưới hếch có viền sáng
   const mouth =
-    `<path d="M588 146Q578 166 568 184Q563 193 558 199" fill="none" stroke="#1a0b09" stroke-opacity="0.9" stroke-width="3.2" stroke-linecap="round"/>` +
-    `<path d="M585 145Q575 165 565 182Q560 191 555 196" fill="none" stroke="${u.url('lip')}" stroke-opacity="0.75" stroke-width="1.6" stroke-linecap="round"/>` +
-    `<path d="M593 149Q584 169 574 187Q568 197 562 203" fill="none" stroke="${u.url('lip')}" stroke-opacity="0.9" stroke-width="2.2" stroke-linecap="round"/>` +
-    `<path d="M598 157Q591 176 581 194Q575 203 569 209" fill="none" stroke="${BRICK}" stroke-opacity="0.45" stroke-width="1.3" stroke-linecap="round"/>` +
-    `<path d="M556 197Q552 201 553 206" fill="none" stroke="#1a0b09" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>`;
+    // khe miệng tối (cong, hướng lên)
+    `<path d="M590 145Q582 168 568 186Q562 194 555 199Q563 189 571 178Q582 162 586 145Z" fill="#1a0b09" fill-opacity="0.9"/>` +
+    // môi trên mảnh
+    `<path d="M585 144Q578 164 566 181Q561 189 554 195" fill="none" stroke="#d9a99c" stroke-opacity="0.55" stroke-width="1.2" stroke-linecap="round"/>` +
+    // hàm dưới hếch: môi dày sáng hình lưỡi liềm
+    `<path d="M590 146Q594 149 594 154Q588 176 575 192Q568 200 560 204Q558 202 558 200Q571 188 580 171Q587 158 590 146Z" fill="${u.url('lip')}" fill-opacity="0.62"/>` +
+    `<path d="M597 160Q590 180 578 197Q571 205 563 209" fill="none" stroke="${BRICK}" stroke-opacity="0.45" stroke-width="1.3" stroke-linecap="round"/>` +
+    `<path d="M555 198Q550 202 551 208" fill="none" stroke="#1a0b09" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>`;
   // nắp mang (đường đứt, gờ sần) + gờ má
   const gill =
     `<path d="M490 152C480 178 474 206 477 230M478 238C479 248 482 256 486 264" fill="none" stroke="#1e110e" stroke-opacity="0.45" stroke-width="2.6" stroke-linecap="round"/>` +
@@ -577,8 +581,7 @@ function headLayer(): string {
     mouth +
     knob +
     `<path d="${cirri}" fill="${STONE_L}" stroke="${OUTLINE}" stroke-opacity="0.45" stroke-width="0.6"/>` +
-    `<!--lid-->` +
-    lid
+    ''
   );
 }
 
@@ -629,7 +632,15 @@ const art: CreatureArt = {
     { name: 'body', role: 'body', svg: bodyLayer() },
     { name: 'knobs', role: 'pattern', svg: edgeKnobs() },
     { name: 'head', role: 'detail', svg: headLayer() },
-    { name: 'eye', role: 'eye', svg: theEye.svg },
+    {
+      name: 'eye',
+      role: 'eye',
+      svg:
+        theEye.svg +
+        // mí thịt sần che nửa trên mắt – mắt như nằm sâu trong hốc đá
+        `<path d="M534.5 129.5Q541 121 548 128.5Q545 126.5 541 126.5Q537 126.5 534.5 129.5Z" fill="${STONE}" stroke="${OUTLINE}" stroke-opacity="0.5" stroke-width="0.6"/>` +
+        `<path d="M537 125.5L535.5 120.5L539.5 124.5M545 125L547 120L546.5 126" fill="${STONE_L}" stroke="${OUTLINE}" stroke-opacity="0.4" stroke-width="0.5"/>`,
+    },
     { name: 'fuzz', role: 'detail', svg: topFuzz() },
     {
       name: 'pectoral',

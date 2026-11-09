@@ -97,7 +97,8 @@ export class World {
   async build(quality: 'high' | 'low'): Promise<void> {
     const s = this.scene;
     // ---- nước nền (gradient bám theo toạ độ thế giới theo trục dọc) ----
-    const g = s.textures.createCanvas(`water:${this.region}:${this.tier}`, 4, 512);
+    const wkey = `water:${this.region}:${this.tier}`;
+    const g = s.textures.exists(wkey) ? null : s.textures.createCanvas(wkey, 4, 512);
     if (g) {
       const ctx = g.getContext();
       const grd = ctx.createLinearGradient(0, 0, 0, 512);
@@ -163,6 +164,8 @@ export class World {
 
     // ---- đáy biển: cắt thành từng mảnh 1024px ----
     const chunk = 1024;
+    // đáy thay đổi theo seed → xoá texture đáy của lượt trước
+    for (const k of s.textures.getTextureKeys()) if (k.startsWith('sb:')) s.textures.remove(k);
     let minG = Infinity;
     for (const v of this.ground) minG = Math.min(minG, v);
     const top = Math.floor(minG - 20);
@@ -203,10 +206,27 @@ export class World {
     // ---- vật thể trên đáy ----
     const props = env.props.filter((p) => !p.tiers || p.tiers.includes(this.tier));
     if (props.length) await this.placeProps(props, quality);
+
+    // ---- tiền cảnh mờ (gần mắt hơn → trôi nhanh hơn) ----
+    const fg = (env.foreground ?? []).filter((p) => !p.tiers || p.tiers.includes(this.tier));
+    if (fg.length && quality === 'high') {
+      const r = this.rand;
+      let x = 300 + r() * 600;
+      while (x < this.W + 1800) {
+        const p = fg[Math.floor(r() * fg.length)];
+        const h = p.heightPx * (0.9 + r() * 0.5);
+        const w = (p.viewBox[0] / p.viewBox[1]) * h;
+        const key = await buildStatic(s, `fg:${this.region}:${p.id}`, p, Math.max(8, w * 0.75), Math.max(8, h * 0.75));
+        const img = s.add.image(x, 0, key).setOrigin(0.5, 1).setDisplaySize(w, h).setDepth(30).setScrollFactor(1.3, 1).setAlpha(0.92);
+        this.fgItems.push({ img, h });
+        x += 1100 + r() * 1300;
+      }
+    }
   }
 
+  private fgItems: { img: Phaser.GameObjects.Image; h: number }[] = [];
+
   private async placeProps(props: PropArt[], quality: 'high' | 'low') {
-    const s = this.scene;
     const r = this.rand;
     const total = props.reduce((a, p) => a + (p.weight ?? 1), 0);
     const pick = (filter?: (p: PropArt) => boolean) => {
@@ -281,20 +301,27 @@ export class World {
 
   update(cam: Phaser.Cameras.Scene2D.Camera, time: number, dt: number): void {
     const viewW = cam.width / cam.zoom;
+    // vật có scrollFactor 0 được phóng to quanh tâm camera → đặt lệch để phủ kín khung nhìn
+    const left = cam.width / 2 - viewW / 2 - 20;
     for (const b of this.backdrops) {
       b.ts.setDisplaySize(viewW + 40, b.ts.displayHeight);
-      b.ts.x = -20;
+      b.ts.x = left;
       b.ts.tilePositionX = (cam.scrollX * b.parallax) / b.scale;
     }
     if (this.bg) {
       this.bg.setDisplaySize(viewW + 40, this.H + 800);
-      this.bg.x = -20;
+      this.bg.x = left;
     }
     if (this.surface) this.surface.tilePositionX = time * 0.02;
-    const left = cam.scrollX - 200;
-    const right = cam.scrollX + viewW + 200;
+    // tiền cảnh: bám theo đáy tại vị trí nó đang hiện ra trên màn hình
+    for (const f of this.fgItems) {
+      const apparentX = f.img.x - cam.scrollX * 0.3;
+      f.img.y = this.groundY(apparentX) + f.h * 0.42;
+    }
+    const vl = cam.worldView.x - 200;
+    const vr = cam.worldView.right + 200;
     for (const sw of this.swayers) {
-      if (sw.rope.x < left || sw.rope.x > right) continue;
+      if (sw.rope.x < vl || sw.rope.x > vr) continue;
       for (let i = 0; i <= sw.n; i++) {
         const u = 1 - i / sw.n; // 1 = ngọn
         sw.rope.points[i].x = sw.base[i] + Math.sin(time * 0.0012 + sw.phase + u * 1.4) * sw.amp * u * u;

@@ -22,8 +22,8 @@ import {
 
 const u = makeIds('ca_map_vay_den');
 
-const BACK = '#6d6354';
-const FLANK = '#968b79';
+const BACK = '#635949';
+const FLANK = '#8e8371';
 const WHITE = '#f4f2ec';
 const INK = '#16171a';
 const EDGE = '#3b342c';

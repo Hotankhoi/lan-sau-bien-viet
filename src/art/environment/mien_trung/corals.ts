@@ -50,7 +50,7 @@ export function tableCoral(o: {
   const sp = o.spacing ?? 9;
   const olc = ink(c.under);
   const sh = contactShadow(u, W / 2, H - 2, W * 0.32, 7);
-  let defs =
+  const defs =
     sh.defs +
     linear(u('trunk'), [
       [0, dark(c.trunk, 0.5)],
@@ -69,7 +69,7 @@ export function tableCoral(o: {
     ], { cx: 0.42, cy: 0.35, r: 0.7 });
 
   let svg = sh.svg;
-  o.plates.forEach((p, pi) => {
+  o.plates.forEach((p) => {
     // --- thân trụ (loe ra dưới mặt bàn) ---
     const top = p.cy + p.ry * 0.5;
     const bot = H;
@@ -129,7 +129,6 @@ export function tableCoral(o: {
         `<path d="${B.tip}" stroke="${c.tip}" stroke-width="${f(fw * 0.95)}"/>` +
         `</g>`;
     });
-    if (pi === 0) defs += '';
   });
   return {
     id: o.id,
@@ -166,7 +165,7 @@ export function branchCoral(o: {
   const [W, H] = o.vb;
   const segs = growTree(
     o.roots.map((s) => ({ x: s.x, y: H - 2, a: s.a, lenK: s.lenK, wK: s.wK })),
-    { seed: o.seed, ...o.tree, box: { x0: 6, x1: W - 6, y0: 8 } },
+    { seed: o.seed, ...o.tree, ellipse: { cx: W / 2, cy: H, rx: W / 2 - 6, ry: H - 8 } },
   );
   const sh = contactShadow(u, W / 2, H - 2, W * 0.36, 7);
   const defs =
@@ -239,7 +238,7 @@ export function brainCoral(o: {
     const bow = Ry * 0.16 * Math.cos(phi);
     const gap = (Ry / o.rows) * 0.9;
     const ph = r() * 6.28;
-    const fr = (0.05 + r() * 0.04) * wav;
+    const fr = (0.035 + r() * 0.03) * wav;
     let pts: Pt[] = [];
     const flush = () => {
       if (pts.length > 2) val += smoothPath(pts);
@@ -247,9 +246,9 @@ export function brainCoral(o: {
     };
     for (let x = cx - hw; x <= cx + hw; x += 5) {
       const t = (x - cx) / Math.max(1, hw);
-      const y = yl + bow * (1 - t * t) + Math.sin(x * fr + ph) * gap * 0.45 * Math.cos(phi * 0.6);
+      const y = yl + bow * (1 - t * t) + (Math.sin(x * fr + ph) * 0.6 + Math.sin(x * fr * 2.3 + ph * 1.7) * 0.25) * gap * Math.cos(phi * 0.6);
       pts.push([x, y]);
-      if (pts.length > 6 && r() < 0.06) {
+      if (pts.length > 5 && r() < 0.11) {
         flush();
         x += 4 + r() * 6;
       }
@@ -271,14 +270,14 @@ export function brainCoral(o: {
       [1, '#06283f', 0.35],
     ], { cx: 0.45, cy: 0.3, r: 0.75 }) +
     rimGradient(u('rim'), '#ffffff', 0.8);
-  const vw = Math.max(2.4, (Ry / o.rows) * 0.42);
+  const vw = Math.max(2.4, (Ry / o.rows) * 0.38);
   const svg =
     sh.svg +
     `<path d="${dome}" fill="${u.url('fill')}"/>` +
     `<g clip-path="${u.url('clip')}" fill="none" stroke-linecap="round">` +
     `<path d="${val}" stroke="${light(o.c.ridge, 0.4)}" stroke-opacity="0.45" stroke-width="${f(vw * 0.5)}" transform="translate(0 ${f(-vw * 0.75)})"/>` +
     `<path d="${val}" stroke="${o.c.valley}" stroke-width="${f(vw)}"/>` +
-    `<path d="${val}" stroke="${o.c.septa}" stroke-opacity="0.55" stroke-width="${f(vw * 0.85)}" stroke-dasharray="0.9 1.9" stroke-linecap="butt"/>` +
+    `<path d="${val}" stroke="${o.c.septa}" stroke-opacity="0.3" stroke-width="${f(vw * 0.7)}" stroke-dasharray="0.7 1.6" stroke-linecap="butt"/>` +
     `</g>` +
     `<path d="${dome}" fill="${u.url('vol')}"/>` +
     `<path d="${dome}" fill="none" stroke="${ink(o.c.valley)}" stroke-opacity="0.55" stroke-width="1.6"/>` +
