@@ -60,3 +60,13 @@ npx tsc --noEmit -p . 2>&1 | grep "species/<id>" || echo "OK"
 - Đặc điểm nhận dạng đã thể hiện; số ảnh tham khảo đã dùng.
 - Những điểm còn chưa ưng / đề xuất sửa file dùng chung (nếu có).
 - Đường dẫn `preview/species/<id>.png`.
+
+## Bài học từ Đợt 2 (đọc kỹ)
+- Chạy thêm `npx tsx tools/check-art.ts` trước khi báo xong: lệnh tìm `NaN`/`undefined` trong SVG sinh ra (Đợt 2 có loài bị NaN do `Math.pow` với số âm – nhớ kẹp tham số bằng `Math.max(0, …)`).
+- `scalePattern` đã sửa (trước đây cung vảy gần như không hiện). Có thêm đồng tử `'vslit'` (khe dọc – cá mập, rắn…).
+- Mỗi lần dùng scratchpad, đặt tên file riêng theo id loài của bạn (vd. `zoom_<id>.mts`) – nhiều agent chạy cùng lúc.
+- Vây da dày (cá mặt quỷ, cá bống…) được phép đục; vây màng mỏng giữ 0.5–0.8.
+- Thẻ Sổ tay hiển thị cả viewBox: đừng để quá nhiều khoảng trống; loài có chi vỗ biên độ lớn thì canh viewBox vừa đủ.
+- Lớp `role: 'alarm'` hiện theo mức hoảng (có nhấp nháy). Không dùng cho trạng thái cần mượt.
+- **Tầng 3 (biển sâu):** game gần như tối đen; shader chỉ giữ sáng những điểm màu xanh lam/xanh lục/lục lam sáng, ít đỏ (vd. `#7CF7FF`, `#5BFFB0`, `#4FA8FF`). Điểm/vệt phát quang → lớp `role: 'glow'`, `blend: 'add'`, màu như trên, có quầng `glowFilter`. Thân loài biển sâu tối màu, chi tiết rõ khi được đèn chiếu.
+- Loài có thân rất dài (lươn, rắn biển) hoặc to (cá nhám voi, cá heo, bò biển) cân nhắc `displayLengthPx` hợp lý (rắn biển ~180, cá heo ~260, cá nhám voi ~520) và ghi lý do trong báo cáo.

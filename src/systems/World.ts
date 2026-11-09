@@ -264,7 +264,10 @@ export class World {
   private async addProp(p: PropArt, x: number, gy: number, w: number, h: number, quality: 'high' | 'low') {
     const s = this.scene;
     const res = (quality === 'high' ? RasterSettings.res : 1) * 1.0;
-    const key = await buildStatic(s, `pr:${this.region}:${p.id}:${Math.round(h / 20)}`, p, Math.max(8, w * res), Math.max(8, h * res));
+    // một texture cho mỗi loại vật thể, vẽ ở cỡ lớn nhất (tiết kiệm thời gian tải)
+    const th = p.heightPx * 1.25 * res;
+    const tw = (p.viewBox[0] / p.viewBox[1]) * th;
+    const key = await buildStatic(s, `pr:${this.region}:${p.id}`, p, Math.max(8, tw), Math.max(8, th));
     let obj: Phaser.GameObjects.Image | Phaser.GameObjects.Rope;
     const sway = p.sway ?? 0;
     const tex = s.textures.get(key).getSourceImage() as HTMLCanvasElement;

@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const URL = process.env.URL ?? 'http://127.0.0.1:5173/';
-const OUT = join(process.cwd(), 'preview', 'screens');
+const OUT = process.env.PT_OUT ?? join(process.cwd(), 'preview', 'screens');
 mkdirSync(OUT, { recursive: true });
 
 async function launch(): Promise<Browser> {
@@ -52,13 +52,16 @@ async function main() {
     if (m.type() === 'error') errors.push(m.text());
   });
   await page.goto(URL);
-  // bỏ hướng dẫn cho ảnh chụp sạch (trừ kịch bản tutorial)
+  // bỏ hướng dẫn cho ảnh chụp sạch (trừ kịch bản tutorial); REGION=khoi_xa mở khoá mọi thứ để thử
   if (which !== 'tutorial') {
-    await page.evaluate(() => {
+    await page.evaluate((unlock) => {
       const k = 'lan-sau-save-v1';
       const d = JSON.parse(localStorage.getItem(k) ?? '{}');
-      localStorage.setItem(k, JSON.stringify({ ...d, tutorialDone: true }));
-    });
+      const extra = unlock
+        ? { upgrades: { tank: 3, fins: 2, macro: 1, scanner: 1, lamp: 1, sub: 1 }, research: 5000, species: Object.fromEntries(Array.from({ length: 30 }, (_, i) => ['test_' + i, { count: 1, bestStars: 1, firstSeen: 0 }])) }
+        : {};
+      localStorage.setItem(k, JSON.stringify({ ...d, tutorialDone: true, ...extra }));
+    }, !!process.env.REGION);
     await page.reload();
   }
   await waitReady(page);
@@ -91,8 +94,15 @@ async function main() {
     const tier = process.env.TIER ?? '1';
     await page.getByText('🤿 Lặn ngay').click();
     await sleep(500);
+    if (process.env.REGION) {
+      const names: Record<string, string> = { bac_bo: 'Bắc Bộ', mien_nam: 'Miền Nam', khoi_xa: 'Khơi xa', mien_trung: 'Miền Trung' };
+      await page.locator('.spot').filter({ hasText: names[process.env.REGION] }).click();
+      await sleep(300);
+    }
+    const t0 = Date.now();
     await page.locator('.tier-btn').nth(Number(tier) - 1).click();
-    await waitReady(page);
+    await waitReady(page, 120000);
+    console.log(`Thời gian tải lượt lặn: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
     await sleep(800);
     await shot(page, `10-dive-t${tier}-start`);
     await hold(page, 'KeyD', 1600);

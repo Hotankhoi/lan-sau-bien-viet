@@ -3,7 +3,7 @@
   { "id": "photo_3star", "name": "Nhiếp ảnh gia nhập môn", "desc": "Chụp một bức ảnh 3★", "icon": "📸" },
   { "id": "anemone_friend", "name": "Người bạn của hải quỳ", "desc": "Ghi nhận cá khoang cổ", "icon": "🐠" },
   { "id": "shadow_hunter", "name": "Thợ săn bóng tối", "desc": "Phát hiện cá mặt quỷ bằng máy quét", "icon": "🔍" },
-  { "id": "wise_fear", "name": "Biết sợ là khôn", "desc": "Ghi nhận đủ 6 loài “cực kỳ nguy hiểm” mà không chạm vào loài nào", "icon": "⚠️" },
+  { "id": "wise_fear", "name": "Biết sợ là khôn", "desc": "Ghi nhận đủ 5 loài “cực kỳ nguy hiểm” mà không chạm vào loài nào", "icon": "⚠️" },
   { "id": "reef_keeper", "name": "Người giữ rạn", "desc": "10 lượt lặn liên tiếp không va vào san hô", "icon": "🪸" },
   { "id": "clean_sea", "name": "Biển sạch", "desc": "Nhặt tổng cộng 50 món rác", "icon": "♻️" },
   { "id": "living_fossil", "name": "Hóa thạch sống", "desc": "Ghi nhận sam biển", "icon": "🦀" },

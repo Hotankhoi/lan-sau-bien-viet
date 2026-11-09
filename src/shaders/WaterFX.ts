@@ -30,6 +30,7 @@ uniform float uVignette;
 uniform float uHurt;
 uniform float uLowO2;
 uniform float uAim;
+uniform float uEmissive;
 
 float causticNet(vec2 p) {
   vec2 q = p;
@@ -77,6 +78,13 @@ void main() {
   // ---- bóng tối ----
   outc *= mix(1.0 - uDark, 1.0, lit);
 
+  // ---- phát quang sinh học (Tầng 3): điểm xanh lam/lục sáng, ít đỏ → giữ sáng giữa bóng tối ----
+  if (uEmissive > 0.0) {
+    float hi = max(col.g, col.b);
+    float em = smoothstep(0.42, 0.85, hi) * smoothstep(0.5, 0.18, col.r) * smoothstep(0.18, 0.5, hi - col.r);
+    outc = mix(outc, col * 1.2, em * uEmissive);
+  }
+
   // ---- caustics ----
   if (uCaustic > 0.0) {
     vec2 wp = (px + uScroll) / uZoom;
@@ -118,6 +126,7 @@ export class WaterFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     hurt: 0,
     lowO2: 0,
     aim: 0,
+    emissive: 0,
   };
 
   constructor(game: Phaser.Game) {
@@ -145,5 +154,6 @@ export class WaterFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     this.set1f('uHurt', p.hurt);
     this.set1f('uLowO2', p.lowO2);
     this.set1f('uAim', p.aim);
+    this.set1f('uEmissive', p.emissive);
   }
 }

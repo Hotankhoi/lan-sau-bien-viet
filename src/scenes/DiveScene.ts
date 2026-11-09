@@ -9,6 +9,7 @@ import { getArt } from '../art/species';
 import { displayLengthFor } from '../art/contract';
 import { buildCreature, buildStatic } from '../art/rasterize';
 import diverArt from '../art/diver';
+import subArt from '../art/submarine';
 import { TRASH } from '../art/trash';
 import { CreatureView } from '../entities/CreatureView';
 import { World } from '../systems/World';
@@ -364,7 +365,8 @@ export class DiveScene extends Phaser.Scene {
   }
 
   private async spawnDiver() {
-    const built = await buildCreature(this, diverArt, 156);
+    const sub = this.params.tier === 3;
+    const built = await buildCreature(this, sub ? subArt : diverArt, sub ? 230 : 156);
     this.diver = new CreatureView(this, 0, 0, built);
     this.diver.setDepth(20);
     this.dx = 700;
@@ -576,7 +578,7 @@ export class DiveScene extends Phaser.Scene {
     this.bubbleT -= dt;
     if (this.bubbleT <= 0) {
       this.bubbleT = sprint ? 1.2 : 2.6 + Math.random();
-      const hx = this.dx + this.diver!.facing * 66;
+      const hx = this.dx + this.diver!.facing * (this.params.tier === 3 ? -120 : 66);
       this.bubbles.explode(4 + Math.floor(Math.random() * 4), hx, this.dy - 8);
       if (Math.random() < 0.5) Sound.bubble();
     }
@@ -859,7 +861,8 @@ export class DiveScene extends Phaser.Scene {
     const depth = this.world.depthAt(focusY);
     const absorb = t === 1 ? Math.min(0.35, depth / 90) : t === 2 ? Math.min(0.92, 0.35 + (depth - 30) / 140) : 0.95;
     p.absorb = absorb;
-    p.dark = t === 1 ? 0 : t === 2 ? Math.min(0.55, (depth - 30) / 260) : 0.9;
+    p.dark = t === 1 ? 0 : t === 2 ? Math.min(0.55, (depth - 30) / 260) : 0.86;
+    p.emissive = t === 3 ? 1 : 0;
     p.water = this.world.waterRGB();
     p.fog = t === 1 ? 0.06 : t === 2 ? 0.18 : 0.12;
     p.lampOn = this.diver && this.lampOn ? 1 : 0;
