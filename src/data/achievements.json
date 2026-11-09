@@ -1,0 +1,20 @@
+[
+  { "id": "first_dive", "name": "Cú lặn đầu tiên", "desc": "Hoàn thành lượt lặn đầu tiên", "icon": "🤿" },
+  { "id": "photo_3star", "name": "Nhiếp ảnh gia nhập môn", "desc": "Chụp một bức ảnh 3★", "icon": "📸" },
+  { "id": "anemone_friend", "name": "Người bạn của hải quỳ", "desc": "Ghi nhận cá khoang cổ", "icon": "🐠" },
+  { "id": "shadow_hunter", "name": "Thợ săn bóng tối", "desc": "Phát hiện cá mặt quỷ bằng máy quét", "icon": "🔍" },
+  { "id": "wise_fear", "name": "Biết sợ là khôn", "desc": "Ghi nhận đủ 6 loài “cực kỳ nguy hiểm” mà không chạm vào loài nào", "icon": "⚠️" },
+  { "id": "reef_keeper", "name": "Người giữ rạn", "desc": "10 lượt lặn liên tiếp không va vào san hô", "icon": "🪸" },
+  { "id": "clean_sea", "name": "Biển sạch", "desc": "Nhặt tổng cộng 50 món rác", "icon": "♻️" },
+  { "id": "living_fossil", "name": "Hóa thạch sống", "desc": "Ghi nhận sam biển", "icon": "🦀" },
+  { "id": "mermaid", "name": "Gặp gỡ nàng tiên cá", "desc": "Ghi nhận bò biển (dugong)", "icon": "🧜" },
+  { "id": "gentle_giant", "name": "Khổng lồ hiền lành", "desc": "Ghi nhận cá nhám voi", "icon": "🐋" },
+  { "id": "abyss", "name": "Chạm đến vực thẳm", "desc": "Lần đầu xuống Tầng 3", "icon": "🌑" },
+  { "id": "light_in_dark", "name": "Ánh sáng trong bóng tối", "desc": "Ghi nhận toàn bộ sinh vật Tầng 3", "icon": "✨" },
+  { "id": "protector", "name": "Người bảo vệ", "desc": "Ghi nhận toàn bộ loài VU/EN/CR", "icon": "🛡️" },
+  { "id": "explorer_bac_bo", "name": "Nhà thám hiểm Vịnh Bắc Bộ", "desc": "Hoàn thành 100% vùng Vịnh Bắc Bộ", "icon": "🏝️" },
+  { "id": "explorer_mien_trung", "name": "Nhà thám hiểm Biển miền Trung", "desc": "Hoàn thành 100% vùng Biển miền Trung", "icon": "🌊" },
+  { "id": "explorer_mien_nam", "name": "Nhà thám hiểm Biển miền Nam", "desc": "Hoàn thành 100% vùng Biển miền Nam", "icon": "🌴" },
+  { "id": "explorer_khoi_xa", "name": "Nhà thám hiểm Vùng khơi xa", "desc": "Hoàn thành 100% Vùng khơi xa", "icon": "🧭" },
+  { "id": "notebook", "name": "Sổ tay Biển Việt", "desc": "Hoàn thành 100% Sổ tay", "icon": "📖" }
+]
