@@ -21,7 +21,7 @@ export class Journal {
     private onClose: () => void,
     initial?: string,
   ) {
-    this.grid = h('div', { class: 'grid scroll' });
+    this.grid = h('div', { class: 'grid' });
     this.progress = h('div', { class: 'progress-row' });
     this.tabsEl = h('div', { class: 'tabs' });
     const sel = (key: keyof Journal['f'], label: string, opts: [string, string][]) => {
@@ -40,7 +40,7 @@ export class Journal {
       'div',
       { class: 'screen dim solid' },
       h('div', { class: 'topbar' }, h('button', { class: 'btn icon', title: 'Đóng', onclick: () => this.close() }, '✕'), h('h2', {}, '📖 Sổ tay Biển Việt'), h('div', { class: 'spacer' }), this.progress),
-      h('div', { class: 'journal' }, this.tabsEl, filters, this.grid),
+      h('div', { class: 'journal' }, this.tabsEl, filters, h('div', { class: 'grid-wrap scroll' }, this.grid)),
     );
     root.appendChild(this.el);
     this.render();

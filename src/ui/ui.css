@@ -1392,3 +1392,16 @@ input[type='range'] {
     top: 124px;
   }
 }
+
+.grid-wrap {
+  flex: 1;
+  min-height: 0;
+}
+.journal .grid {
+  flex: none;
+  grid-auto-rows: auto;
+}
+.scard {
+  min-height: 0;
+  height: 100%;
+}

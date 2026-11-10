@@ -257,7 +257,8 @@ export class World {
       const sizeVar = 0.8 + r() * 0.45;
       const h = p.heightPx * sizeVar;
       const w = (p.viewBox[0] / p.viewBox[1]) * h;
-      const gy = this.groundY(x) + 8;
+      // trên nền dốc: chôn chân vật thể theo phía thấp hơn để không "lơ lửng"
+      const gy = Math.max(this.groundY(x), this.groundY(x - w * 0.3), this.groundY(x + w * 0.3)) + 6;
       await this.addProp(p, x, gy, w, h, quality);
       const gap = dense ? (w * 0.45 + 10 + r() * 50) / reefFactor : 90 + r() * 260;
       x += Math.max(30, gap);
