@@ -366,6 +366,8 @@ export class DiveScene extends Phaser.Scene {
         const rock = this.world.rocks[Math.floor(r() * this.world.rocks.length)];
         x = rock.x + (r() < 0.5 ? -1 : 1) * (rock.r + 30);
       }
+      // vùng an toàn quanh điểm xuất phát: không sinh loài nguy hiểm sát thợ lặn
+      if ((sp.danger === 'nguy_hiem' || sp.danger === 'cuc_ky_nguy_hiem') && Math.abs(x - 700) < 480) x += 960;
       const gy = this.world.groundY(x);
       const hab = CONFIG.habitat[sp.id];
       const group: Creature[] = [];
@@ -640,7 +642,7 @@ export class DiveScene extends Phaser.Scene {
       const ax = this.aimPoint().x;
       if (Math.abs(ax - this.dx) > 30) this.diver!.face(ax > this.dx ? 1 : -1);
     }
-    const tilt = Phaser.Math.Clamp(Math.atan2(this.dvy, Math.abs(this.dvx) + 60) * 0.7, -0.6, 0.6);
+    const tilt = Phaser.Math.Clamp(Math.atan2(this.dvy, Math.abs(this.dvx) + 60) * 0.7, -0.6, 0.6) * (this.params.tier === 3 ? 0.35 : 1);
     this.diver!.rotation += (tilt * this.diver!.facing - this.diver!.rotation) * Math.min(1, dt * 4);
     this.diver!.intensity = 0.4 + Math.min(2, speedNow / 150);
     this.diver!.setPosition(this.dx, this.dy);

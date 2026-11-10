@@ -4,7 +4,7 @@
  *   npx tsx tools/playtest.ts [kịch bản]   (mặc định: all)
  */
 import { chromium, type Browser, type Page } from 'playwright-core';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const URL = process.env.URL ?? 'http://127.0.0.1:5173/';
@@ -54,16 +54,15 @@ async function main() {
   await page.goto(URL);
   // bỏ hướng dẫn cho ảnh chụp sạch (trừ kịch bản tutorial); REGION=khoi_xa mở khoá mọi thứ để thử
   if (which !== 'tutorial') {
-    await page.evaluate(async (unlock) => {
+    const ids: string[] = process.env.REGION ? (JSON.parse(readFileSync(join(process.cwd(), 'src/data/species.json'), 'utf8')) as { id: string }[]).map((x) => x.id) : [];
+    await page.evaluate((unlockIds) => {
       const k = 'lan-sau-save-v1';
       const d = JSON.parse(localStorage.getItem(k) ?? '{}');
-      let extra = {};
-      if (unlock) {
-        const all: { id: string }[] = await (await fetch('/src/data/species.json')).json();
-        extra = { upgrades: { tank: 3, fins: 2, macro: 1, scanner: 1, lamp: 1, sub: 1 }, research: 5000, species: Object.fromEntries(all.slice(0, 30).map((s) => [s.id, { count: 1, bestStars: 1, firstSeen: 0 }])) };
-      }
+      const extra = unlockIds.length
+        ? { upgrades: { tank: 3, fins: 2, macro: 1, scanner: 1, lamp: 1, sub: 1 }, research: 5000, species: Object.fromEntries(unlockIds.slice(0, 30).map((id) => [id, { count: 1, bestStars: 1, firstSeen: 0 }])) }
+        : {};
       localStorage.setItem(k, JSON.stringify({ ...d, tutorialDone: true, ...extra }));
-    }, !!process.env.REGION);
+    }, ids);
     await page.reload();
   }
   await waitReady(page);

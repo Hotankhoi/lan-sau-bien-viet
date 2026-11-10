@@ -14,7 +14,7 @@ _Cập nhật: 10/11/2026. File này được cập nhật sau mỗi đợt; ph�
 |---|---|---|
 | 1 – Nền móng | Khung Vite + TypeScript + Phaser 3, hợp đồng hình `src/art/contract.ts`, `style-bible.ts`, 2 loài mẫu (cá khoang cổ, cá mao tiên), công cụ `npm run art:preview`, dữ liệu 43 loài đã kiểm tra | Xong |
 | 2 – Lõi lối chơi miền Trung | 10 loài miền Trung còn lại, môi trường rạn san hô, cảnh lặn (oxy, máy ảnh, hành vi sinh vật, sinh vật nguy hiểm, Điểm Xanh, rác, san hô), Sổ tay + thẻ chi tiết, lưu tiến trình | Xong |
-| 3 – Đánh bóng demo | Tia nắng, caustics, bóng đổ, cát cuộn, lọc màu theo độ sâu, đèn lặn trả màu thật ở Tầng 2, thẻ lật 3D, hướng dẫn lượt đầu, kiểm tra tự động | Xong phần chính – chờ kết quả kiểm tra độc lập |
+| 3 – Đánh bóng demo | Tia nắng, caustics, bóng đổ, cát cuộn, lọc màu theo độ sâu, đèn lặn trả màu thật ở Tầng 2, thẻ lật 3D, hướng dẫn lượt đầu, kiểm tra tự động | Xong – đã gắn tag `demo-vong-truong` |
 | 4 – Mở rộng | Bản đồ Việt Nam (có Hoàng Sa, Trường Sa), nâng cấp, thành tựu, cài đặt, màn Nguồn & Kê khai AI: **đã có**. Tàu lặn "Hải Âu" + Tầng 3: đã viết, chưa thử kỹ. 31 loài + 3 môi trường còn lại: **chưa làm** | Dở dang |
 | 5 – Kiểm tra tổng | Build, cân bằng, hiệu năng | Chưa làm |
 
@@ -23,7 +23,7 @@ _Cập nhật: 10/11/2026. File này được cập nhật sau mỗi đợt; ph�
 - Bảng hình các loài: `preview/contact-sheet.png`; từng loài (kèm ảnh tham khảo đặt cạnh): `preview/species/<id>.png`.
 - Môi trường miền Trung: `preview/env/mien_trung.png`.
 - Ảnh chụp màn hình chơi thử tự động: `preview/screens/` (tiêu đề, bản đồ, Sổ tay, lặn Tầng 1 và 2, ngắm/chụp, thẻ loài mới, thẻ cảnh báo, tổng kết, so sánh tắt/bật đèn `30-…` và `31-…`).
-- Báo cáo kiểm tra độc lập: `docs/REVIEW_DOT2.md` (nếu đã có).
+- Báo cáo kiểm tra: `docs/REVIEW_DOT2.md` (Phần 1 thẩm mỹ do làn kiểm tra độc lập chấm – trung bình 8,0/10, 4 loài dưới 8 điểm đã được sửa; Phần 2–4 do agent điều phối tự kiểm vì làn độc lập bị ngắt giữa chừng).
 
 ## 4. Chưa làm / còn hạn chế
 

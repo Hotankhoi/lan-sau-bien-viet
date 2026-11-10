@@ -18,3 +18,8 @@
 | 2026-11-09 | Chống bão hạn mức | Chạy agent theo lô nhỏ, ưu tiên bản demo vòng trường | Lần đầu cả 11 agent cùng hết hạn mức tuần. |
 | 2026-11-09 | Thành tựu "Biết sợ là khôn" ghi "6 loài" nhưng dữ liệu chỉ có 5 loài `cuc_ky_nguy_hiem` | Giữ nguyên dữ liệu loài, đổi mô tả thành "đủ 5 loài", điều kiện = tất cả loài cực kỳ nguy hiểm | Không tự ý đổi mức nguy hiểm của loài (dữ liệu khoa học do đội kiểm chứng). |
 | 2026-11-09 | `ca_den_long`, `bo_bien_khong_lo` ở Tầng 3 nhưng behavior khác `deep_glow` | Giữ behavior gốc; Tầng 3 vẫn tối, đèn tàu lặn làm lộ | Theo dữ liệu gốc của đề bài. |
+| 2026-11-10 | Kiểm tra độc lập chấm 4 loài dưới 8 điểm (ốc cối địa lý vẽ nhầm hoa văn Conus textile, mực nang quá dài, cá mao tiên thân thon, sao biển gai như có chân) | Cho 4 agent sửa có mục tiêu theo `docs/REVIEW_DOT2.md` | Đúng loài quan trọng hơn giữ bản cũ. Trường `visual` trong species.json giữ nguyên (chỉ là ghi chú cho người vẽ, không hiện trong game). |
+| 2026-11-10 | Làn kiểm tra độc lập bị ngắt sau Phần 1 (hết hạn mức) | Phần 2–4 do agent điều phối tự kiểm bằng `tools/playtest.ts`, `tools/playtest-extra.ts`; ghi rõ trong báo cáo | Không đủ hạn mức để chạy lại cả làn; phần thẩm mỹ (quan trọng nhất) đã được chấm độc lập. |
+| 2026-11-10 | Sinh vật nhút nhát hoảng quá nhanh, bị trừ Điểm Xanh oan | Chỉ tăng độ hoảng khi bơi nhanh VÀ hướng về phía sinh vật; giảm tốc độ tăng | Dạy "tiếp cận nhẹ nhàng" nhưng không phạt người chơi bơi ngang qua. |
+| 2026-11-10 | Loài nguy hiểm sinh ra ngay chỗ xuất phát | Vùng an toàn 480 px quanh điểm bắt đầu | Tránh mất oxy ngay giây đầu, nhất là với học sinh mới chơi. |
+| 2026-11-10 | Kích thước thợ lặn | Tăng từ 156 lên 190 px | Thợ lặn nhỏ hơn cả cá vẹt 1,3 m là sai tỉ lệ. |
