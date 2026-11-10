@@ -185,7 +185,7 @@ const art: CreatureArt = {
         // vệt sáng bóng lưng
         `<ellipse cx="330" cy="104" rx="120" ry="30" fill="${u.url('gloss')}" filter="${u.url('soft')}"/>` +
         // 3 dải trắng viền đen
-        `<g fill="${u.url('band')}" stroke="${INK}" stroke-width="5" stroke-linejoin="round">` +
+        `<g fill="${u.url('band')}" stroke="${INK}" stroke-width="3.6" stroke-linejoin="round">` +
         `<path d="${HEAD_BAND}"/><path d="${MID_BAND}"/><path d="${TAIL_BAND}"/></g>` +
         `</g>` +
         body.overlay,
@@ -197,7 +197,7 @@ const art: CreatureArt = {
         // mép nắp mang mảnh ngay trước dải đầu
         `<path d="M432 92C420 124 420 176 440 210" fill="none" stroke="#9a3a06" stroke-opacity="0.35" stroke-width="1.4"/>` +
         // miệng & môi
-        `<path d="M471 157Q465 163 456 163" fill="none" stroke="#5a1e04" stroke-width="2" stroke-linecap="round"/>` +
+        `<path d="M472 158Q465 160.5 458 159" fill="none" stroke="#5a1e04" stroke-width="1.7" stroke-linecap="round"/>` +
         `<path d="M469 150Q466 145 460 145" fill="none" stroke="#ffc58e" stroke-width="1.2" opacity="0.7"/>` +
         `<circle cx="460" cy="134" r="1.8" fill="#5a1e04" opacity="0.7"/>`,
     },
@@ -208,7 +208,7 @@ const art: CreatureArt = {
       pivot: [394, 172],
       anim: { type: 'rotate', amp: 0.38, speed: 1.3 },
       svg:
-        `<path d="${PECTORAL}" fill="#FF8A2A" fill-opacity="0.93" stroke="#a83f08" stroke-opacity="0.6" stroke-width="1.4"/>` +
+        `<path d="${PECTORAL}" fill="#FF8A2A" fill-opacity="0.93" stroke="${INK}" stroke-opacity="0.8" stroke-width="1.8" stroke-linejoin="round"/>` +
         finRays([394, 172], [[352, 152], [340, 160], [334, 170], [336, 180], [346, 188]], { color: '#8a3200', opacity: 0.35 }),
     },
   ],

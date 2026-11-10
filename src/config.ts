@@ -93,6 +93,6 @@ export const UPGRADES: UpgradeDef[] = [
     icon: '🚤',
     costs: [600],
     science:
-      'Ở độ sâu 200 m, áp suất nước khoảng 21 atm – gấp 21 lần trên mặt đất. Thợ lặn tự do thể thao chỉ an toàn trong khoảng 30–40 m; xuống sâu hơn cần thiết bị chuyên dụng. Vì vậy các nhà khoa học dùng tàu lặn có vỏ chịu áp lực để thám hiểm biển sâu.',
+      'Ở độ sâu 200 m, áp suất nước khoảng 21 atm – gấp 21 lần trên mặt đất. Thợ lặn bình khí giải trí thường chỉ được lặn tới khoảng 30–40 m; xuống sâu hơn cần huấn luyện và thiết bị chuyên dụng. Vì vậy các nhà khoa học dùng tàu lặn có vỏ chịu áp lực để thám hiểm biển sâu.',
   },
 ];

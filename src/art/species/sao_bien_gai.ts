@@ -25,10 +25,10 @@ const TIP = '#E5552B';
 const TIP_FAR = '#B9452A';
 
 // ---------- Phép chiếu ----------
-const CX = 290;
-const CY = 196;
-const K = 0.68; // nén trục sâu (Z)
-const KH = 0.74; // nén chiều cao (H)
+const CX = 300;
+const CY = 236;
+const K = 0.8; // nén trục sâu (Z) – nhìn từ trên nhiều hơn
+const KH = 0.5; // nén chiều cao (H) – thân bẹt, bám nền
 type V3 = [number, number, number]; // X, Z (sâu, + = gần người xem), H (cao)
 const P = (v: V3): [number, number] => [CX + v[0], CY + v[1] * K - v[2] * KH];
 const f = (n: number) => n.toFixed(1);
@@ -40,8 +40,8 @@ const norm = (v: V3): V3 => {
 
 // ---------- Đĩa ----------
 const R = 100; // bán kính đĩa (mặt đáy)
-const HC = 38; // chiều cao đỉnh vòm
-const HE = 13; // chiều cao mép đĩa
+const HC = 26; // chiều cao đỉnh vòm
+const HE = 10; // chiều cao mép đĩa
 const hDisc = (r: number) => HE + (HC - HE) * Math.max(0, 1 - (r / R) ** 2);
 
 // ---------- Spine ----------
@@ -68,22 +68,26 @@ function spine(buf: SpineBuf, base: V3, dir: V3, len: number, w: number, curve =
     const bow = Math.sin(Math.PI * k) * curve * L;
     return `${f(b[0] + dx * k + nx * (side * wk + bow))} ${f(b[1] + dy * k + ny * (side * wk + bow))}`;
   };
+  // bề rộng gai: gốc dày, thuôn lõm dần về mũi kim
+  const wAt = (k: number) => w * Math.pow(Math.max(0, 1 - k), 1.3);
   const poly = (k0: number) => {
-    const w0 = w * (1 - k0);
-    const km = (k0 + 1) / 2;
-    const wm = w * (1 - km);
-    return `M${at(k0, 1, w0)}L${at(km, 1, wm)}L${f(t[0])} ${f(t[1])}L${at(km, -1, wm)}L${at(k0, -1, w0)}Z`;
+    const ka = k0 + (1 - k0) * 0.3;
+    const kb = k0 + (1 - k0) * 0.65;
+    return (
+      `M${at(k0, 1, wAt(k0))}L${at(ka, 1, wAt(ka))}L${at(kb, 1, wAt(kb))}L${f(t[0])} ${f(t[1])}` +
+      `L${at(kb, -1, wAt(kb))}L${at(ka, -1, wAt(ka))}L${at(k0, -1, wAt(k0))}Z`
+    );
   };
   // đoạn gốc (0 → k1) để gai "mọc" ra từ da
   const seg = (k0: number, k1: number) =>
-    `M${at(k0, 1, w * (1 - k0))}L${at(k1, 1, w * (1 - k1))}L${at(k1, -1, w * (1 - k1))}L${at(k0, -1, w * (1 - k0))}Z`;
+    `M${at(k0, 1, wAt(k0))}L${at(k1, 1, wAt(k1))}L${at(k1, -1, wAt(k1))}L${at(k0, -1, wAt(k0))}Z`;
   buf.body += poly(0);
-  buf.base += seg(0, 0.2);
+  buf.base += seg(0, 0.16);
   buf.mid += poly(0.4);
-  buf.tip += poly(0.62);
+  buf.tip += poly(0.58);
   // nét sáng phía hứng nắng (phía trên màn hình)
   const up = ny < 0 ? 1 : -1;
-  if (L > 10) buf.hi += `M${at(0.12, up, w * 0.45)}L${at(0.5, up, w * 0.25)}`;
+  if (L > 10) buf.hi += `M${at(0.1, up, wAt(0.1) * 0.5)}L${at(0.45, up, wAt(0.45) * 0.5)}`;
 }
 
 function spineSvg(buf: SpineBuf, far: boolean): string {
@@ -120,12 +124,12 @@ const ARMS: Arm[] = (() => {
     out.push({
       i,
       theta,
-      len: 162 + r() * 26,
-      w0: 25 + r() * 4,
-      wig: (r() - 0.5) * 26,
+      len: 204 + r() * 30,
+      w0: 20 + r() * 3,
+      wig: (r() - 0.5) * 36,
       ph: r() * 2,
       r0: front ? 70 : 48,
-      curl: r() < 0.35 ? 6 + r() * 8 : 0,
+      curl: r() < 0.35 ? 1.5 + r() * 2.5 : 0,
       seed: 100 + i * 17,
     });
   }
@@ -142,7 +146,8 @@ function armFrame(a: Arm, t: number) {
   const H0 = hDisc(a.r0) - 2;
   const H = 3 + (H0 - 3) * Math.pow(Math.max(0, 1 - t), 2.1) + a.curl * Math.pow(Math.max(0, t - 0.7) / 0.3, 2);
   const c: V3 = [ux * dist + n[0] * off, uz * dist + n[1] * off, H];
-  const w = a.w0 * (1 - 0.82 * Math.pow(Math.max(0, t), 0.85)) + 1.5;
+  // thuôn nhọn dần về mút (không bo tròn)
+  const w = a.w0 * (0.05 + 0.95 * Math.pow(Math.max(0, 1 - t), 0.7)) + 0.5;
   return { c, n, u: [ux, uz, 0] as V3, w, H };
 }
 
@@ -171,11 +176,14 @@ function renderArm(a: Arm): string {
   const tipF = armFrame(a, 1.04);
   const tipTop = P(tipF.c);
   const tipFoot = P([tipF.c[0], tipF.c[1], 0]);
-  const ring = [...top, tipTop, ...topR.reverse()];
+  // chỏm bo ở gốc (lùi vào trong đĩa) để gốc cánh không bị cắt ngang
+  const capR = Math.max(0, a.r0 - a.w0 * 0.9);
+  const cap = P([Math.cos(a.theta) * capR, Math.sin(a.theta) * capR, hDisc(capR) - 1]);
+  const ring = [...top, tipTop, ...topR.reverse(), cap];
   const topD = smoothPath(ring, true, 0.45);
   // viền chỉ hai bên + mút (không viền ngang gốc để cánh liền với đĩa)
   const skip = a.r0 >= 60 ? 2 : 1;
-  const outlineD = smoothPath(ring.slice(skip, ring.length - skip), false, 0.45);
+  const outlineD = smoothPath(ring.slice(skip, ring.length - 1 - skip), false, 0.45);
   const footD = smoothPath([...foot, tipFoot, ...footR.reverse()], true, 0.45);
   const ridgeD = smoothPath([...ridge, ...ridgeR.reverse()], true, 0.45);
   const ridgeLineD = smoothPath(ridgeLine.slice(0, -1), false);
@@ -197,6 +205,23 @@ function renderArm(a: Arm): string {
     { user: true, x1: +g0[0].toFixed(1), y1: +g0[1].toFixed(1), x2: +g1[0].toFixed(1), y2: +g1[1].toFixed(1) },
   );
   ARM_DEFS.push(grad);
+  // cánh phía trước vẽ đè lên đĩa: phủ dải màu da đĩa mờ dần ở gốc để cánh liền vào đĩa
+  const blend = a.r0 >= 60;
+  if (blend) {
+    const e = P(armFrame(a, 0.26).c);
+    const c0 = mix(SKIN_L, SKIN, 0.6);
+    ARM_DEFS.push(
+      linear(
+        u(`armBase${a.i}`),
+        [
+          [0, c0, 1],
+          [0.4, c0, 0.9],
+          [1, c0, 0],
+        ],
+        { user: true, x1: +cap[0].toFixed(1), y1: +cap[1].toFixed(1), x2: +e[0].toFixed(1), y2: +e[1].toFixed(1) },
+      ),
+    );
+  }
 
   // gai
   const r = rng(a.seed);
@@ -207,56 +232,56 @@ function renderArm(a: Arm): string {
     // mép phía xa người xem (Z nhỏ) thì gai vẽ sau thân cánh
     const isFar = side * Math.cos(a.theta) < 0.05;
     const buf = isFar ? far : near;
-    // hàng mép: xòe ngang
-    for (let k = 0; k < 14; k++) {
-      const t = 0.03 + k * 0.07 + (side > 0 ? 0 : 0.035) + (r() - 0.5) * 0.025;
+    // hàng mép: dựng chếch ~50–60° (không nằm xiên như lông vũ)
+    for (let k = 0; k < 18; k++) {
+      const t = 0.03 + k * 0.054 + (side > 0 ? 0 : 0.027) + (r() - 0.5) * 0.02;
       if (t > 0.97) continue;
       const fr = armFrame(a, t);
       const base = add(fr.c, fr.n, side * fr.w * 0.92);
       base[2] = Math.max(1.5, fr.H - fr.w * 0.4);
-      const el = 0.32 + r() * 0.25;
-      const fwd = 0.35 + r() * 0.25;
+      const el = 0.8 + r() * 0.3;
+      const fwd = 0.12 + r() * 0.18;
       const dir: V3 = [
         fr.n[0] * side * Math.cos(el) + fr.u[0] * fwd,
         fr.n[1] * side * Math.cos(el) + fr.u[1] * fwd,
         Math.sin(el),
       ];
-      const len = (34 + r() * 12) * (1 - t * 0.42);
-      spine(buf, base, dir, len, 1.75 * (1 - t * 0.3), (r() - 0.5) * 0.06);
+      const len = (38 + r() * 12) * (1 - t * 0.45);
+      spine(buf, base, dir, len, 2.2 * (1 - t * 0.35), (r() - 0.5) * 0.05);
     }
     // hàng sườn trên: dựng hơn, ngắn hơn
-    for (let k = 0; k < 12; k++) {
-      const t = 0.05 + k * 0.075 + (side > 0 ? 0.035 : 0) + (r() - 0.5) * 0.025;
+    for (let k = 0; k < 15; k++) {
+      const t = 0.05 + k * 0.06 + (side > 0 ? 0.03 : 0) + (r() - 0.5) * 0.02;
       if (t > 0.92) continue;
       const fr = armFrame(a, t);
       const base = add(fr.c, fr.n, side * fr.w * 0.55);
       base[2] = fr.H - fr.w * 0.12;
-      const el = 0.7 + r() * 0.3;
-      const fwd = 0.3 + r() * 0.2;
+      const el = 1.15 + r() * 0.25;
+      const fwd = 0.08 + r() * 0.14;
       const dir: V3 = [
         fr.n[0] * side * Math.cos(el) + fr.u[0] * fwd,
         fr.n[1] * side * Math.cos(el) + fr.u[1] * fwd,
         Math.sin(el),
       ];
-      const len = (28 + r() * 10) * (1 - t * 0.4);
-      spine(buf, base, dir, len, 1.6, (r() - 0.5) * 0.08);
+      const len = (36 + r() * 12) * (1 - t * 0.45);
+      spine(buf, base, dir, len, 2.1 * (1 - t * 0.3), (r() - 0.5) * 0.06);
     }
   }
   // gai sống cánh
-  for (let k = 0; k < 9; k++) {
-    const t = 0.05 + k * 0.1 + (r() - 0.5) * 0.04;
+  for (let k = 0; k < 12; k++) {
+    const t = 0.05 + k * 0.076 + (r() - 0.5) * 0.03;
     const fr = armFrame(a, t);
     const base: V3 = [fr.c[0], fr.c[1], fr.H];
-    const sd = (r() - 0.5) * 0.6;
-    const dir: V3 = [fr.u[0] * 0.45 + fr.n[0] * sd, fr.u[1] * 0.45 + fr.n[1] * sd, 1];
-    spine(ridgeSp, base, dir, (20 + r() * 9) * (1 - t * 0.4), 1.5, (r() - 0.5) * 0.08);
+    const sd = (r() - 0.5) * 0.3;
+    const dir: V3 = [fr.u[0] * 0.15 + fr.n[0] * sd, fr.u[1] * 0.15 + fr.n[1] * sd, 1];
+    spine(ridgeSp, base, dir, (30 + r() * 10) * (1 - t * 0.45), 2.0 * (1 - t * 0.3), (r() - 0.5) * 0.06);
   }
 
   return (
     `<g>` +
     spineSvg(far, true) +
     // thành bên cánh (phần chân chạm đáy)
-    `<path d="${footD}" fill="${mix(SKIN, SKIN_D, 0.5)}" stroke="${OUT}" stroke-width="1.2" stroke-opacity="0.55"/>` +
+    `<path d="${footD}" fill="${mix(SKIN, SKIN_D, 0.3)}" stroke="${OUT}" stroke-width="1" stroke-opacity="0.45"/>` +
     `<path d="${footD}" fill="${u.url('sideShade')}"/>` +
     // mặt lưng cánh
     `<path d="${topD}" fill="${u.url(gid)}"/>` +
@@ -264,6 +289,7 @@ function renderArm(a: Arm): string {
     `<path d="${topD}" fill="${u.url('papulae2')}"/>` +
     `<path d="${ridgeD}" fill="${RIDGE}" fill-opacity="0.5"/>` +
     `<path d="${ridgeLineD}" fill="none" stroke="${RIDGE_L}" stroke-opacity="0.55" stroke-width="1.2" stroke-linecap="round"/>` +
+    (blend ? `<path d="${topD}" fill="${u.url(`armBase${a.i}`)}"/><path d="${topD}" fill="${u.url('papulae')}" fill-opacity="0.5"/>` : '') +
     `<path d="${outlineD}" fill="none" stroke="${OUT}" stroke-width="1.2" stroke-opacity="0.5" stroke-linejoin="round"/>` +
     spineSvg(near, false) +
     spineSvg(ridgeSp, false) +
@@ -333,12 +359,12 @@ function discSurface(): { ridges: string; spines: string; plates: string } {
     const Z = Math.sin(ang) * rr;
     const el = 1.4 - (rr / R) * 0.7 + (r() - 0.5) * 0.35;
     const dir: V3 = [Math.cos(ang) * Math.cos(el), Math.sin(ang) * Math.cos(el), Math.sin(el)];
-    items.push({ base: [X, Z, hDisc(rr) - 0.5], dir, len: 22 + r() * 12 - (rr / R) * 3, z: Z });
+    items.push({ base: [X, Z, hDisc(rr) - 0.5], dir, len: 30 + r() * 12 - (rr / R) * 4, z: Z });
   }
   items.sort((p, q) => p.z - q.z);
   items.forEach((it, idx) => {
     const b = bins[Math.min(2, Math.floor((idx / items.length) * 3))];
-    spine(b, it.base, it.dir, it.len, 1.7, (r() - 0.5) * 0.08);
+    spine(b, it.base, it.dir, it.len, 2.1, (r() - 0.5) * 0.06);
   });
   const spines = bins.map((b) => spineSvg(b, false)).join('');
   // tấm madreporite & lỗ hậu môn ở tâm
@@ -373,7 +399,7 @@ const defs = joinDefs(
   ]),
   linear(u('sideShade'), [
     [0, '#000000', 0],
-    [1, '#000000', 0.35],
+    [1, '#000000', 0.2],
   ]),
   dotPattern(u('papulae'), { gap: 5.2, r: 1.05, color: PAPULA, opacity: 0.55 }),
   dotPattern(u('papulae2'), { gap: 7.4, r: 0.8, color: '#C47A9E', opacity: 0.22, offset: false }),
@@ -404,15 +430,15 @@ const defs = joinDefs(
       [0.65, '#06141c', 0.28],
       [1, '#06141c', 0],
     ],
-    { user: true, cx: scx, cy: scy, r: 250, transform: `translate(${scx} ${scy}) scale(1 0.56) translate(${-scx} ${-scy})` },
+    { user: true, cx: scx, cy: scy, r: 268, transform: `translate(${scx} ${scy}) scale(1 0.8) translate(${-scx} ${-scy})` },
   ),
   rimGradient(u('rim'), '#ffe6f4', 0.8),
 );
 
 const art: CreatureArt = {
   id: 'sao_bien_gai',
-  viewBox: [580, 380],
-  lengthUnits: 420,
+  viewBox: [600, 472],
+  lengthUnits: 470,
   spineY: CY,
   animation: 'static',
   cycleHz: 0.3,
@@ -423,10 +449,11 @@ const art: CreatureArt = {
     {
       name: 'shadow',
       role: 'detail',
+      cardOnly: true, // trong game đã có hệ thống bóng đổ riêng
       bend: false,
       z: 'back',
       pivot: [scx, scy],
-      svg: `<ellipse cx="${scx}" cy="${scy}" rx="250" ry="140" fill="${u.url('shadow')}"/>`,
+      svg: `<ellipse cx="${scx}" cy="${scy}" rx="268" ry="214" fill="${u.url('shadow')}"/>`,
     },
     {
       name: 'armBackSway',

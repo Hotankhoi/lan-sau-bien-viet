@@ -54,12 +54,14 @@ async function main() {
   await page.goto(URL);
   // bỏ hướng dẫn cho ảnh chụp sạch (trừ kịch bản tutorial); REGION=khoi_xa mở khoá mọi thứ để thử
   if (which !== 'tutorial') {
-    await page.evaluate((unlock) => {
+    await page.evaluate(async (unlock) => {
       const k = 'lan-sau-save-v1';
       const d = JSON.parse(localStorage.getItem(k) ?? '{}');
-      const extra = unlock
-        ? { upgrades: { tank: 3, fins: 2, macro: 1, scanner: 1, lamp: 1, sub: 1 }, research: 5000, species: Object.fromEntries(Array.from({ length: 30 }, (_, i) => ['test_' + i, { count: 1, bestStars: 1, firstSeen: 0 }])) }
-        : {};
+      let extra = {};
+      if (unlock) {
+        const all: { id: string }[] = await (await fetch('/src/data/species.json')).json();
+        extra = { upgrades: { tank: 3, fins: 2, macro: 1, scanner: 1, lamp: 1, sub: 1 }, research: 5000, species: Object.fromEntries(all.slice(0, 30).map((s) => [s.id, { count: 1, bestStars: 1, firstSeen: 0 }])) };
+      }
       localStorage.setItem(k, JSON.stringify({ ...d, tutorialDone: true, ...extra }));
     }, !!process.env.REGION);
     await page.reload();

@@ -956,8 +956,14 @@ export class DiveScene extends Phaser.Scene {
     p.fog = t === 1 ? 0.06 : t === 2 ? 0.18 : 0.12;
     p.lampOn = this.diver && this.lampOn ? 1 : 0;
     const zoom = cam.zoom;
-    p.lampX = (this.dx - cam.worldView.x) * zoom;
-    p.lampY = (this.dy - cam.worldView.y) * zoom;
+    // đầu đèn nằm phía trước thân (máy ảnh của thợ lặn / đèn pha của tàu)
+    const f = this.diver?.facing ?? 1;
+    const sub = t === 3;
+    p.lampX = (this.dx + f * (sub ? 105 : 62) - cam.worldView.x) * zoom;
+    p.lampY = (this.dy + (sub ? 24 : 6) - cam.worldView.y) * zoom;
+    p.selfX = (this.dx - cam.worldView.x) * zoom;
+    p.selfY = (this.dy - cam.worldView.y) * zoom;
+    p.haloR = (sub ? 250 : 170) * zoom;
     p.lampAng = this.lampAng;
     p.lampRange = this.lampRange() * zoom;
     p.lampCone = this.lampCone();

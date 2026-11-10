@@ -31,6 +31,8 @@ uniform float uHurt;
 uniform float uLowO2;
 uniform float uAim;
 uniform float uEmissive;
+uniform vec2 uSelfPos;
+uniform float uHaloR;
 
 float causticNet(vec2 p) {
   vec2 q = p;
@@ -60,7 +62,9 @@ void main() {
   float ang = atan(d.y, d.x);
   float delta = abs(mod(ang - uLampAng + 3.14159265, 6.2831853) - 3.14159265);
   float cone = smoothstep(uLampCone, uLampCone * 0.55, delta) * smoothstep(uLampRange, uLampRange * 0.25, dist);
-  float halo = smoothstep(uLampRange * 0.3, 0.0, dist) * 0.7;
+  // quầng sáng quanh người/tàu (tính từ tâm thân, không phải từ đầu đèn)
+  float hd = length(px - uSelfPos);
+  float halo = smoothstep(uHaloR, uHaloR * 0.4, hd) * 0.85;
   float lit = clamp(cone + halo, 0.0, 1.0) * uLampOn;
 
   // ---- hấp thụ màu theo độ sâu ----
@@ -127,6 +131,9 @@ export class WaterFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     lowO2: 0,
     aim: 0,
     emissive: 0,
+    selfX: 0,
+    selfY: 0,
+    haloR: 150,
   };
 
   constructor(game: Phaser.Game) {
@@ -155,5 +162,7 @@ export class WaterFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     this.set1f('uLowO2', p.lowO2);
     this.set1f('uAim', p.aim);
     this.set1f('uEmissive', p.emissive);
+    this.set2f('uSelfPos', p.selfX, p.selfY);
+    this.set1f('uHaloR', p.haloR);
   }
 }

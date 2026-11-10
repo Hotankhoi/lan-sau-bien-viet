@@ -379,8 +379,8 @@ const body = standardBody(u, BODY, {
 const theEye = eye(u, 'eye', {
   cx: 541,
   cy: 130.5,
-  r: 4.8,
-  iris: ['#f08a3c', '#7a1c10'],
+  r: 3.9,
+  iris: ['#c47a40', '#5a2414'],
   look: [0.4, -0.1],
 });
 

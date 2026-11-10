@@ -92,21 +92,57 @@
 
 ## PHẦN 2 – CHƠI THỬ
 
-*(đang làm – sẽ cập nhật)*
+> Làn kiểm tra độc lập bị ngắt (hết hạn mức) sau Phần 1. Phần 2–4 dưới đây do agent điều phối tự kiểm bằng công cụ tự động (`tools/playtest.ts`, `tools/playtest-extra.ts`) – **không còn là kiểm tra độc lập**, đội dự án nên chơi thử lại bằng tay.
 
-## PHẦN 3 – KHOA HỌC
+| Hạng mục | Kết quả | Bằng chứng |
+|---|---|---|
+| Tiêu đề, Sổ tay, Bản đồ, Nâng cấp, Nguồn & Kê khai AI | Mở được, không lỗi console | `preview/screens/01`–`05` |
+| Lặn Tầng 1: bơi, ngắm (Space/chuột phải), chụp | Chạy; ảnh được lưu thật vào Sổ tay | `10`–`15`, `20`, `21` |
+| Chụp trúng sinh vật → thẻ loài mới lật 3D → thẻ chi tiết, huy hiệu IUCN bấm được | Đạt (3★, +120 điểm với trai tai tượng) | `21`–`23` |
+| Chạm loài nguy hiểm → mất oxy, đẩy lùi, thẻ cảnh báo có câu cố định về 115 | Đạt | `24` |
+| Tầng 2: mất màu đỏ, bật đèn màu thật hiện lại | Đạt, thấy rõ trên đàn cá vẹt đầu gù | `30`, `31` |
+| Tổng kết lượt lặn | Đạt | `16` |
+| Máy tính bảng cảm ứng 1024×768: joystick, nút Chụp (giữ/thả) | Đạt | `tools/playtest-extra.ts` |
+| Trình duyệt chặn localStorage | Game vẫn khởi động và lặn được | `tools/playtest-extra.ts` |
+| Chất lượng Thấp | Chạy được | `tools/playtest-extra.ts` |
+| FPS (trình duyệt không giao diện, chỉ tham khảo) | 52–60 ở Cao, ~52 ở Thấp | đầu ra playtest |
+| Thời gian tải một lượt lặn | 2,8–3,8 giây | đầu ra playtest |
 
-*(chưa làm)*
+Lỗi đã tìm thấy và đã sửa trong lúc chơi thử: chuột phải + chuột trái không chụp được (trình duyệt không phát `pointerdown` lần hai) → đổi sang `mousedown`; HUD che mất chuột; đáy biển lệch màu giữa các mảnh; Sổ tay tràn chữ; bản đồ hở mép; quá nhiều cá vẹt ở Tầng 2; sinh vật nhút nhát hoảng quá nhanh.
 
-## PHẦN 4 – TIÊU CHÍ MỤC 14 VÀ MÀN HÌNH MỤC 10
+## PHẦN 3 – KHOA HỌC (cần đội dự án kiểm chứng lại)
 
-*(chưa làm)*
+- Áp suất `1 + độ sâu/10 atm`, ánh sáng đỏ bị hấp thụ trước: đúng.
+- Câu giải thích tàu lặn: đã sửa "thợ lặn tự do" thành "thợ lặn bình khí giải trí thường chỉ được lặn tới khoảng 30–40 m" (lặn tự do là môn nín thở, khác hẳn).
+- Trong game thợ lặn xuống tới ~200 m ở Tầng 2 – ngoài đời lặn bình khí giải trí không xuống sâu như vậy. Đây là lựa chọn thiết kế của đề bài; nên có một dòng chú thích trong phần thuyết trình.
+- Mức IUCN cần đội tra lại trên iucnredlist.org (công cụ AI không tự đổi dữ liệu khoa học):
+  - `duoi_o_dom` (*Aetobatus ocellatus*) đang ghi VU – có thể đã được nâng lên EN ở lần đánh giá gần đây.
+  - `muc_nang` (*Sepia pharaonis*) đang ghi NE – IUCN xếp "Thiếu dữ liệu (DD)"; game chưa có bậc DD.
+  - `trai_tai_tuong` (*Tridacna squamosa*) đang ghi NE và đã gắn `needsVerification`.
+  - `bach_tuoc_dom_xanh` ghi *Hapalochlaena sp.* – nên chốt loài (ở Việt Nam thường gặp *H. lunulata* / *H. maculosa*).
+- Hình ốc cối địa lý vẽ nhầm hoa văn của *Conus textile* (xem Phần 1) – đang sửa.
+
+## PHẦN 4 – TIÊU CHÍ MỤC 14 VÀ MÀN HÌNH MỤC 10 (phạm vi miền Trung)
+
+| Tiêu chí mục 14 | Trạng thái |
+|---|---|
+| `npm run build` thành công, mở được trên web tĩnh | Đạt (đã sửa lỗi `manualChunks`) |
+| 60 FPS ở Cao; Thấp chạy được máy yếu | Chưa đo trên máy thật (headless 52–60) |
+| Không ảnh/âm thanh ngoài; chỉ tải font Be Vietnam Pro | Đạt (`references/` không nằm trong bản build, không được commit) |
+| Chữ tiếng Việt có dấu, không lỗi font | Đạt trên các ảnh chụp |
+| Mỗi loài có hình riêng | Đạt cho 12 loài miền Trung; 31 loài còn lại là hình tạm |
+| Tầng 2 mất màu đỏ, đèn trả màu thật | Đạt |
+| Bản đồ có Hoàng Sa, Trường Sa thuộc Việt Nam | Đạt (có nhãn "(Việt Nam)") |
+| Xóa/chặn localStorage vẫn khởi động | Đạt |
+| Có màn Nguồn dữ liệu & Kê khai AI | Đạt |
+
+Màn hình mục 10: cả 10 màn đều có (tiêu đề, hướng dẫn lồng trong lượt đầu, bản đồ, lặn + HUD, tổng kết, Sổ tay + thẻ chi tiết, nâng cấp, thành tựu, Nguồn & AI, cài đặt).
 
 ---
 
 ## Tiến độ
 
-- [x] Phần 1 – Thẩm mỹ
-- [ ] Phần 2 – Chơi thử
-- [ ] Phần 3 – Khoa học
-- [ ] Phần 4 – Tiêu chí
+- [x] Phần 1 – Thẩm mỹ (làn kiểm tra độc lập)
+- [x] Phần 2 – Chơi thử (agent điều phối tự kiểm)
+- [x] Phần 3 – Khoa học (agent điều phối, cần đội kiểm chứng)
+- [x] Phần 4 – Tiêu chí (agent điều phối)
