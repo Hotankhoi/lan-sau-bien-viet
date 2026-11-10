@@ -49,6 +49,10 @@ Kết quả nằm trong thư mục `dist/` – đây là trang web tĩnh, mở �
 | Sổ tay | Tab / J | Nút "Sổ tay" |
 | Tạm dừng | Esc / P | – |
 
+## Chế độ lớp học
+
+Ở màn hình tiêu đề bấm **🏫 Chế độ lớp học**: giáo viên chọn một vùng biển đã mở và tầng độ sâu → học sinh lặn một lượt → sau khi nổi lên làm **5 câu trắc nghiệm** sinh tự động từ chính các loài vừa ghi nhận (tên loài, mức nguy hiểm, tình trạng bảo tồn, "Bạn có biết?", kỹ năng an toàn) → hiện điểm và đáp án có giải thích để cả lớp thảo luận. Câu hỏi lấy trực tiếp từ `src/data/species.json` nên khi đội sửa dữ liệu thì câu hỏi tự đổi theo.
+
 ## Việc đội dự án cần làm
 
 1. **Điền thông tin nhóm** vào `src/data/credits.json` (tên nhóm, trường, thành viên, giáo viên hướng dẫn) – hiện ở màn hình "Nguồn dữ liệu & Kê khai AI".

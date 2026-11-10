@@ -203,6 +203,9 @@ async function main() {
     await shot(page, '25-journal-in-dive');
     await page.keyboard.press('Tab');
     await sleep(300);
+    await page.reload();
+    await waitReady(page);
+    await sleep(800);
   }
   if (which === 'lamp') {
     // Kịch bản Tầng 2: so sánh màu khi tắt đèn và bật đèn chiếu vào sinh vật
@@ -235,6 +238,36 @@ async function main() {
     await page.keyboard.press('KeyF');
     await sleep(900);
     await shot(page, '31-t2-lamp-on');
+  }
+  if (which === 'all' || which === 'class') {
+    // Kịch bản Chế độ lớp học: chọn vùng → lặn → nổi lên → 5 câu trắc nghiệm → kết quả
+    await page.getByText('🏫 Chế độ lớp học').click();
+    await sleep(500);
+    await shot(page, '50-class-setup');
+    await page.getByText('Bắt đầu lượt lặn của lớp').click();
+    await waitReady(page, 120000);
+    await sleep(1500);
+    await page.keyboard.down('KeyQ');
+    await sleep(1300);
+    await page.keyboard.up('KeyQ');
+    await sleep(2600);
+    await shot(page, '51-class-quiz-intro');
+    await page.getByText('Bắt đầu làm bài').click();
+    await sleep(400);
+    let n = 0;
+    for (let i = 0; i < 5; i++) {
+      await page.locator('.quiz-opt').nth(i % 3).click();
+      await sleep(350);
+      if (i === 0) await shot(page, '52-class-question');
+      n++;
+      await page.locator('.quiz .btn.primary').click();
+      await sleep(350);
+    }
+    await shot(page, '53-class-result');
+    const score = await page.locator('.quiz-score').innerText().catch(() => '');
+    console.log(`Lớp học: đã trả lời ${n} câu, điểm hiển thị: ${score.replace(/\s+/g, '')}`);
+    await page.getByText('Về màn hình chính').click();
+    await sleep(500);
   }
   if (errors.length) {
     console.log('\n⚠ Lỗi trong trang:');

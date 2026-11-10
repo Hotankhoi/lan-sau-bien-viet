@@ -15,6 +15,7 @@ _Cập nhật: 10/11/2026. File này được cập nhật sau mỗi đợt; ph�
 | 1 – Nền móng | Khung Vite + TypeScript + Phaser 3, hợp đồng hình `src/art/contract.ts`, `style-bible.ts`, 2 loài mẫu (cá khoang cổ, cá mao tiên), công cụ `npm run art:preview`, dữ liệu 43 loài đã kiểm tra | Xong |
 | 2 – Lõi lối chơi miền Trung | 10 loài miền Trung còn lại, môi trường rạn san hô, cảnh lặn (oxy, máy ảnh, hành vi sinh vật, sinh vật nguy hiểm, Điểm Xanh, rác, san hô), Sổ tay + thẻ chi tiết, lưu tiến trình | Xong |
 | 3 – Đánh bóng demo | Tia nắng, caustics, bóng đổ, cát cuộn, lọc màu theo độ sâu, đèn lặn trả màu thật ở Tầng 2, thẻ lật 3D, hướng dẫn lượt đầu, kiểm tra tự động | Xong – đã gắn tag `demo-vong-truong` |
+| Bổ sung – Chế độ lớp học | Nút ở màn hình tiêu đề: chọn vùng → lặn một lượt → 5 câu trắc nghiệm sinh từ dữ liệu loài vừa ghi nhận → điểm + đáp án giải thích (`src/systems/Quiz.ts`, `src/ui/Classroom.ts`; ảnh `preview/screens/50`–`53`) | Xong |
 | 4 – Mở rộng | Bản đồ Việt Nam (có Hoàng Sa, Trường Sa), nâng cấp, thành tựu, cài đặt, màn Nguồn & Kê khai AI: **đã có**. Tàu lặn "Hải Âu" + Tầng 3: đã viết, chưa thử kỹ. 31 loài + 3 môi trường còn lại: **chưa làm** | Dở dang |
 | 5 – Kiểm tra tổng | Build, cân bằng, hiệu năng | Chưa làm |
 
@@ -30,7 +31,6 @@ _Cập nhật: 10/11/2026. File này được cập nhật sau mỗi đợt; ph�
 - 31 loài của Vịnh Bắc Bộ, Biển miền Nam, Vùng khơi xa chưa có hình riêng. 5 loài Bắc Bộ đã tải ảnh tham khảo (`references/`) nhưng chưa vẽ.
 - Môi trường riêng cho 3 vùng còn lại chưa vẽ (đang dùng môi trường tạm sinh bằng mã).
 - Tầng 3 (tàu lặn, phát quang sinh học) chưa chơi thử đầy đủ.
-- "Chế độ lớp học" chưa làm.
 - FPS mới đo trong trình duyệt không giao diện (≈ 50–60); cần đội đo lại trên laptop thật.
 
 ## 5. Cách chạy và đưa lên mạng

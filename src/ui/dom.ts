@@ -28,6 +28,11 @@ function append(el: Node, children: Child[]) {
   }
 }
 
+/** Thêm nhiều phần tử con (bỏ qua null/false, nhận cả mảng lồng). */
+export function add(el: HTMLElement, ...children: Child[]) {
+  append(el, children);
+}
+
 export function clear(el: HTMLElement) {
   while (el.firstChild) el.removeChild(el.firstChild);
 }

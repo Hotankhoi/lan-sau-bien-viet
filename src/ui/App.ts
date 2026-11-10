@@ -14,8 +14,9 @@ import { Hud, toast } from './Hud';
 import { Journal } from './Journal';
 import { installControls, resetControls } from './controls';
 import { vnMapSvg, SPOTS, MAP_W, MAP_H } from './vnmap';
+import { classroomSetup, classroomQuiz } from './Classroom';
 
-type Screen = 'title' | 'map' | 'dive' | 'summary' | 'upgrades' | 'achievements' | 'credits' | 'settings';
+type Screen = 'title' | 'map' | 'dive' | 'summary' | 'upgrades' | 'achievements' | 'credits' | 'settings' | 'classroom' | 'quiz';
 
 const TIPS = [
   'Nước hấp thụ ánh sáng đỏ trước tiên – xuống sâu, mọi thứ ngả xanh lam.',
@@ -34,6 +35,8 @@ export class App {
   private pauseEl: HTMLElement | null = null;
   private loadingEl: HTMLElement | null = null;
   private selRegion: RegionId = 'mien_trung';
+  /** đang ở Chế độ lớp học: sau lượt lặn sẽ làm bài trắc nghiệm */
+  private classMode = false;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -178,6 +181,7 @@ export class App {
           h('button', { class: 'btn', onclick: () => (Sound.unlock(), this.upgrades()) }, '🛠️ Nâng cấp'),
           h('button', { class: 'btn', onclick: () => (Sound.unlock(), this.achievements()) }, '🏆 Thành tựu'),
           h('button', { class: 'btn', onclick: () => (Sound.unlock(), this.settings()) }, '⚙️ Cài đặt'),
+          h('button', { class: 'btn gold', style: 'grid-column:1/-1', onclick: () => (Sound.unlock(), Sound.ui(), this.classroom()) }, '🏫 Chế độ lớp học'),
           h('button', { class: 'btn ghost', style: 'grid-column:1/-1', onclick: () => (Sound.unlock(), this.credits()) }, '📚 Nguồn dữ liệu & Kê khai AI'),
         ),
         h('div', { class: 'title-foot' }, h('span', { class: 'pill' }, `📖 ${n}/${SPECIES.length} loài đã ghi nhận`), h('span', { class: 'pill' }, `🔬 ${fmt(Save.data.research)} điểm`), h('span', { class: 'pill' }, `♻️ ${fmt(Save.data.green)} Điểm Xanh`)),
@@ -188,6 +192,7 @@ export class App {
 
   // ---------- Bản đồ ----------
   map() {
+    this.classMode = false;
     const side = h('div', { class: 'map-side glass scroll' });
     const box = h('div', { class: 'map-box glass', html: vnMapSvg() });
     const svg = box.querySelector('svg')!;
@@ -260,13 +265,42 @@ export class App {
     Flow.dive(region, tier);
   }
 
+  // ---------- Chế độ lớp học ----------
+  classroom() {
+    this.classMode = false;
+    const el = classroomSetup(
+      (region, tier) => {
+        this.classMode = true;
+        this.dive(region, tier);
+      },
+      this.topbar('🏫 Chế độ lớp học', () => this.title()),
+    );
+    this.set('classroom', el);
+  }
+
   // ---------- Tổng kết ----------
   private summary(s: DiveSummary) {
     this.hud?.destroy();
     this.hud = null;
+    this.pauseEl?.remove();
+    this.pauseEl = null;
     Input.paused = false;
     resetControls();
     Flow.title(s.region as RegionId);
+    if (this.classMode) {
+      this.set(
+        'quiz',
+        classroomQuiz(
+          s,
+          () => this.classroom(),
+          () => {
+            this.classMode = false;
+            this.title();
+          },
+        ),
+      );
+      return;
+    }
     const reason = s.reason === 'oxygen' ? 'Hết oxy – bạn đã tự động nổi lên an toàn. Các ảnh đã chụp vẫn được giữ lại.' : 'Bạn đã nổi lên an toàn.';
     const best = new Map<string, (typeof s.photos)[number]>();
     for (const p of s.photos) if (p.speciesId && (!best.has(p.speciesId) || best.get(p.speciesId)!.quality < p.quality)) best.set(p.speciesId, p);
