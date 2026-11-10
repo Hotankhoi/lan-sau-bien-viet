@@ -68,10 +68,11 @@ export function installControls(hotkey: (k: 'journal' | 'pause') => void) {
   });
   canvasHost.addEventListener('pointerdown', (e) => {
     Sound.unlock();
-    if (e.pointerType !== 'mouse') {
-      Input.usingTouch = true;
-      return;
-    }
+    if (e.pointerType !== 'mouse') Input.usingTouch = true;
+  });
+  // Dùng mousedown/mouseup: khi đang giữ chuột phải mà bấm thêm chuột trái,
+  // trình duyệt KHÔNG phát pointerdown lần hai (chỉ phát pointermove).
+  canvasHost.addEventListener('mousedown', (e) => {
     Input.usingTouch = false;
     Input.pointerX = e.clientX;
     Input.pointerY = e.clientY;
@@ -83,8 +84,8 @@ export function installControls(hotkey: (k: 'journal' | 'pause') => void) {
       Input.shoot = true;
     }
   });
-  window.addEventListener('pointerup', (e) => {
-    if (e.pointerType === 'mouse' && e.button === 2) {
+  window.addEventListener('mouseup', (e) => {
+    if (e.button === 2 && mouseAim) {
       mouseAim = false;
       recompute();
     }

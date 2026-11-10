@@ -1351,3 +1351,31 @@ input[type='range'] {
   background: var(--glass-strong);
   color: var(--ink);
 }
+
+.screen.dim.solid {
+  background: radial-gradient(ellipse at 50% 20%, rgba(6, 44, 72, 0.96), rgba(2, 12, 24, 0.98));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 45;
+}
+.scard .hint {
+  font-size: 15px;
+}
+.map-box {
+  background: #0a3d63;
+}
+
+/* HUD không chặn chuột/chạm xuống cảnh game, trừ các nút */
+#ui > .hud,
+#ui > .toasts {
+  pointer-events: none;
+}
+#ui > .hud .hud-tools,
+#ui > .hud .touch .joy,
+#ui > .hud .touch .tbtns {
+  pointer-events: auto;
+}
+
+.dcard.glass {
+  background: var(--glass-strong);
+}

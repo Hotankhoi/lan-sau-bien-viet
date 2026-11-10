@@ -203,7 +203,7 @@ export class App {
       const { found, total } = regionFound(r.id);
       g.innerHTML = `<circle class="halo" r="26" fill="${col}" fill-opacity="0.35"/><circle class="core" r="15" fill="${col}" stroke="#03263a" stroke-width="3"/>
         <text y="6" text-anchor="middle" font-size="16">${locked ? '🔒' : '🤿'}</text>
-        <g transform="translate(0 ${r.id === 'mien_nam' ? 44 : -34})"><rect x="-74" y="-16" width="148" height="26" rx="13" fill="#04182b" fill-opacity="0.82" stroke="${col}" stroke-opacity="0.7"/>
+        <g transform="translate(0 ${r.id === 'mien_nam' ? 42 : -34})"><rect x="-74" y="-16" width="148" height="26" rx="13" fill="#04182b" fill-opacity="0.82" stroke="${col}" stroke-opacity="0.7"/>
         <text y="3" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-weight="700" font-size="14" fill="#eafcff">${r.short} · ${found}/${total}</text></g>`;
       g.addEventListener('click', () => {
         Sound.ui();

@@ -96,7 +96,7 @@ async function main() {
     await sleep(500);
     if (process.env.REGION) {
       const names: Record<string, string> = { bac_bo: 'Bắc Bộ', mien_nam: 'Miền Nam', khoi_xa: 'Khơi xa', mien_trung: 'Miền Trung' };
-      await page.locator('.spot').filter({ hasText: names[process.env.REGION] }).click();
+      await page.locator('.spot').filter({ hasText: names[process.env.REGION] }).dispatchEvent('click');
       await sleep(300);
     }
     const t0 = Date.now();
@@ -128,6 +128,112 @@ async function main() {
     await page.keyboard.up('KeyQ');
     await sleep(2500);
     await shot(page, `16-summary`);
+    await page.reload();
+    await waitReady(page);
+    await sleep(800);
+  }
+  if (which === 'all' || which === 'photo') {
+    // Kịch bản: chụp trúng một sinh vật → thẻ loài mới → Sổ tay → chạm loài nguy hiểm → thẻ cảnh báo
+    const tier = process.env.TIER ?? '1';
+    await page.getByText('🤿 Lặn ngay').click();
+    await sleep(500);
+    await page.locator('.tier-btn').nth(Number(tier) - 1).click();
+    await waitReady(page, 120000);
+    await sleep(1200);
+    const place = (danger: boolean, offset: number) =>
+      page.evaluate(
+        ([dg, off]) => {
+          const sc = (window as any).__game.scene.getScene('Dive');
+          const list = sc.creatures.filter((c: any) => c.active && c.hidden < 0.5 && c.sp.behavior !== 'camouflage' && c.sp.behavior !== 'fast_pass' && (dg ? c.sp.danger === 'cuc_ky_nguy_hiem' || c.sp.danger === 'nguy_hiem' : c.sp.danger === 'an_toan' && c.sp.sizeCm > 20));
+          const c = list[0];
+          if (!c) return null;
+          sc.dx = c.x - (off as number);
+          sc.dy = c.y - (off ? 20 : 0);
+          sc.dvx = 0;
+          sc.dvy = 0;
+          sc.cameras.main.centerOn(sc.dx, sc.dy);
+          return c.sp.id as string;
+        },
+        [danger, offset] as [boolean, number],
+      );
+    const target = await place(false, 190);
+    console.log('Mục tiêu chụp:', target);
+    await sleep(900);
+    const pos = await page.evaluate((id) => {
+      const sc = (window as any).__game.scene.getScene('Dive');
+      const c = sc.creatures.find((q: any) => q.sp.id === id);
+      const cam = sc.cameras.main;
+      const k = sc.scale.width / innerWidth;
+      return { x: ((c.x - cam.worldView.x) * cam.zoom) / k, y: ((c.y - cam.worldView.y) * cam.zoom) / k };
+    }, target);
+    await page.mouse.move(pos.x, pos.y);
+    await page.mouse.down({ button: 'right' });
+    await sleep(900);
+    await shot(page, '20-aim-on-target');
+    await page.mouse.down({ button: 'left' });
+    await page.mouse.up({ button: 'left' });
+    await page.mouse.up({ button: 'right' });
+    await sleep(1900);
+    await shot(page, '21-discover-card');
+    const pop = await page.locator('.discover').count();
+    console.log('Thẻ loài mới hiện:', pop > 0);
+    if (pop) {
+      await page.getByText('📖 Xem trong Sổ tay').click();
+      await sleep(1300);
+      await shot(page, '22-detail-card');
+      await page.locator('.badge', { hasText: 'IUCN' }).click();
+      await sleep(300);
+      await shot(page, '23-detail-iucn');
+      await page.keyboard.press('Escape');
+      await sleep(500);
+    }
+    const dg = await place(true, 0);
+    console.log('Chạm loài nguy hiểm:', dg);
+    await sleep(700);
+    await shot(page, '24-danger-card');
+    const txt = await page.locator('.warn-card').innerText().catch(() => '');
+    console.log('Thẻ cảnh báo có câu cố định:', txt.includes('gọi cấp cứu 115'));
+    if (txt) await page.getByText('Đã hiểu').click();
+    await sleep(400);
+    const fps = await page.evaluate(() => (window as any).__game.loop.actualFps);
+    console.log('FPS (headless, tham khảo):', fps.toFixed(1));
+    await page.keyboard.press('Tab');
+    await sleep(900);
+    await shot(page, '25-journal-in-dive');
+    await page.keyboard.press('Tab');
+    await sleep(300);
+  }
+  if (which === 'lamp') {
+    // Kịch bản Tầng 2: so sánh màu khi tắt đèn và bật đèn chiếu vào sinh vật
+    await page.getByText('🤿 Lặn ngay').click();
+    await sleep(500);
+    await page.locator('.tier-btn').nth(1).click();
+    await waitReady(page, 120000);
+    await sleep(1000);
+    const id = await page.evaluate(() => {
+      const sc = (window as any).__game.scene.getScene('Dive');
+      const c = sc.creatures.find((q: any) => q.active && q.sp.id === 'ca_vet_dau_gu') ?? sc.creatures.find((q: any) => q.active && q.sp.behavior !== 'fast_pass');
+      sc.dx = c.x - 260;
+      sc.dy = c.y;
+      sc.dvx = 0;
+      sc.dvy = 0;
+      c.vx = 0;
+      c.vy = 0;
+      c.tx = c.x;
+      c.ty = c.y;
+      c.homeX = c.x;
+      c.homeY = c.y;
+      sc.diver.face(1, true);
+      sc.cameras.main.centerOn(sc.dx + 120, sc.dy);
+      sc.lampOn = false;
+      return c.sp.id;
+    });
+    console.log('Sinh vật thử đèn:', id);
+    await sleep(700);
+    await shot(page, '30-t2-lamp-off');
+    await page.keyboard.press('KeyF');
+    await sleep(900);
+    await shot(page, '31-t2-lamp-on');
   }
   if (errors.length) {
     console.log('\n⚠ Lỗi trong trang:');

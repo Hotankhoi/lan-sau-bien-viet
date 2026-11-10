@@ -38,7 +38,7 @@ export class Journal {
     );
     this.el = h(
       'div',
-      { class: 'screen dim' },
+      { class: 'screen dim solid' },
       h('div', { class: 'topbar' }, h('button', { class: 'btn icon', title: 'Đóng', onclick: () => this.close() }, '✕'), h('h2', {}, '📖 Sổ tay Biển Việt'), h('div', { class: 'spacer' }), this.progress),
       h('div', { class: 'journal' }, this.tabsEl, filters, this.grid),
     );
@@ -87,15 +87,20 @@ export class Journal {
     const known = Save.discovered(sp.id);
     const rec = Save.data.species[sp.id];
     const img = h('img', { src: artUrl(sp.id), alt: known ? sp.nameVi : 'Loài chưa ghi nhận', loading: 'lazy', decoding: 'async' });
+    const open = () => {
+      Sound.ui();
+      if (known) this.detail(sp);
+    };
     return h(
-      'button',
+      'div',
       {
         class: `scard${known ? '' : ' unknown'}`,
+        role: 'button',
+        tabindex: 0,
+        'aria-label': known ? sp.nameVi : 'Loài chưa ghi nhận',
         style: `animation-delay:${Math.min(i, 20) * 25}ms`,
-        onclick: () => {
-          Sound.ui();
-          if (known) this.detail(sp);
-        },
+        onclick: open,
+        onkeydown: (e: Event) => (e as KeyboardEvent).key === 'Enter' && open(),
       },
       h('span', { class: 'rdot', style: `background:${RARITY_INFO[sp.rarity].color};box-shadow:0 0 8px ${RARITY_INFO[sp.rarity].color}` }),
       h('div', { class: 'thumb' }, img),

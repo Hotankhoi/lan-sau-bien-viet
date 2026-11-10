@@ -60,7 +60,7 @@ void main() {
   float ang = atan(d.y, d.x);
   float delta = abs(mod(ang - uLampAng + 3.14159265, 6.2831853) - 3.14159265);
   float cone = smoothstep(uLampCone, uLampCone * 0.55, delta) * smoothstep(uLampRange, uLampRange * 0.25, dist);
-  float halo = smoothstep(uLampRange * 0.22, 0.0, dist) * 0.55;
+  float halo = smoothstep(uLampRange * 0.3, 0.0, dist) * 0.7;
   float lit = clamp(cone + halo, 0.0, 1.0) * uLampOn;
 
   // ---- hấp thụ màu theo độ sâu ----

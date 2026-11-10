@@ -169,6 +169,8 @@ export class World {
     let minG = Infinity;
     for (const v of this.ground) minG = Math.min(minG, v);
     const top = Math.floor(minG - 20);
+    let avgG = 0;
+    for (const v of this.ground) avgG += v / this.ground.length;
     const bottom = this.H + CONFIG.seabedThickness;
     const sb = env.seabed;
     for (let cx = 0; cx < this.W; cx += chunk) {
@@ -191,7 +193,7 @@ export class World {
       }
       const svg = {
         viewBox: [chunk, h] as [number, number],
-        defs: `<linearGradient id="sb${cx}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sb.top}"/><stop offset="0.35" stop-color="${mix(sb.top, sb.bottom, 0.5)}"/><stop offset="1" stop-color="${sb.bottom}"/></linearGradient>`,
+        defs: `<linearGradient id="sb${cx}" gradientUnits="userSpaceOnUse" x1="0" y1="${(avgG - top - 120).toFixed(0)}" x2="0" y2="${h}"><stop offset="0" stop-color="${sb.top}"/><stop offset="0.35" stop-color="${mix(sb.top, sb.bottom, 0.5)}"/><stop offset="1" stop-color="${sb.bottom}"/></linearGradient>`,
         svg:
           `<path d="M0 ${h}L${pts.join('L')}L${chunk} ${h}Z" fill="url(#sb${cx})"/>` +
           `<g fill="${sb.speckle}" opacity="0.55">${speck}</g>` +
@@ -216,8 +218,9 @@ export class World {
         const p = fg[Math.floor(r() * fg.length)];
         const h = p.heightPx * (0.9 + r() * 0.5);
         const w = (p.viewBox[0] / p.viewBox[1]) * h;
-        const key = await buildStatic(s, `fg:${this.region}:${p.id}`, p, Math.max(8, w * 0.75), Math.max(8, h * 0.75));
-        const img = s.add.image(x, 0, key).setOrigin(0.5, 1).setDisplaySize(w, h).setDepth(30).setScrollFactor(1.3, 1).setAlpha(0.92);
+        // vẽ ở độ phân giải thấp rồi phóng to → mờ tự nhiên như ngoài vùng lấy nét
+        const key = await buildStatic(s, `fg:${this.region}:${p.id}`, p, Math.max(8, w * 0.3), Math.max(8, h * 0.3));
+        const img = s.add.image(x, 0, key).setOrigin(0.5, 1).setDisplaySize(w, h).setDepth(30).setScrollFactor(1.3, 1).setTint(0x4a6a8c);
         this.fgItems.push({ img, h });
         x += 1100 + r() * 1300;
       }
@@ -318,8 +321,12 @@ export class World {
     if (this.surface) this.surface.tilePositionX = time * 0.02;
     // tiền cảnh: bám theo đáy tại vị trí nó đang hiện ra trên màn hình
     for (const f of this.fgItems) {
+      // nhô lên từ mép dưới màn hình, chỉ hiện khi camera ở sát đáy
       const apparentX = f.img.x - cam.scrollX * 0.3;
-      f.img.y = this.groundY(apparentX) + f.h * 0.42;
+      const bottom = cam.worldView.bottom;
+      f.img.y = bottom + f.h * 0.45;
+      const near = (bottom - (this.groundY(apparentX) - 40)) / 260;
+      f.img.setAlpha(Math.max(0, Math.min(1, near)) * 0.8);
     }
     const vl = cam.worldView.x - 200;
     const vr = cam.worldView.right + 200;

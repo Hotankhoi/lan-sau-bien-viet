@@ -34,14 +34,15 @@ const VN: [number, number][] = [
 
 /** Đất liền các nước lân cận (tô nhạt, không nhãn) */
 const NEIGHBOR: [number, number][] = [
-  [101.8, 23.6], [117.6, 23.6], [117.5, 23.4], [116.5, 22.95], [115.4, 22.75], [114.3, 22.35], [113.3, 22.15], [112.3, 21.8],
+  [80, 40], [130, 40], [117.6, 23.6], [117.5, 23.4], [116.5, 22.95], [115.4, 22.75], [114.3, 22.35], [113.3, 22.15], [112.3, 21.8],
   [111.3, 21.45], [110.45, 21.2], [110.25, 20.35], [109.95, 20.3], [109.7, 21.35], [108.65, 21.65], [108.0, 21.55],
   ...VN.slice(0, 15).reverse(),
   [102.14, 22.4], [102.5, 21.95], [102.85, 21.7], [102.95, 21.15], [103.3, 20.75], [103.75, 20.7], [104.4, 20.45], [104.65, 20.1],
   [104.4, 19.75], [104.05, 19.3], [104.6, 18.95], [105.15, 18.6], [105.5, 18.1], [105.85, 17.65], [106.3, 17.15], [106.55, 16.6],
   [106.9, 16.25], [107.25, 15.8], [107.4, 15.2], [107.55, 14.65], [107.55, 14.1], [107.5, 13.5], [107.55, 12.85], [107.45, 12.3],
   [106.95, 11.95], [106.45, 11.75], [106.15, 11.25], [105.85, 10.95], [105.3, 10.9], [104.9, 10.75], [104.45, 10.42],
-  [103.9, 10.6], [103.5, 10.55], [103.1, 10.95], [102.85, 11.6], [102.3, 12.2], [101.8, 12.6],
+  [103.9, 10.6], [103.5, 10.55], [103.1, 10.95], [102.85, 11.6], [102.3, 12.2], [101.5, 12.7], [100.9, 12.6], [100.9, 13.4], [100.3, 13.3], [99.9, 12.2], [99.6, 11.0], [99.2, 9.6],
+  [100.3, 8.3], [101.0, 6.9], [102.1, 6.2], [103.4, 4.5], [103.5, 2.8], [104.3, 1.4], [103.4, 1.2], [80, 1],
 ];
 
 const HAINAN: [number, number][] = [
@@ -81,7 +82,7 @@ function islands(list: [number, number, number][], fill: string): string {
 export const SPOTS: Record<RegionId, [number, number]> = {
   bac_bo: P(107.55, 20.35),
   mien_trung: P(109.95, 13.2),
-  mien_nam: P(106.2, 8.95),
+  mien_nam: P(107.45, 8.75),
   khoi_xa: P(113.4, 12.6),
 };
 
@@ -99,7 +100,7 @@ const TRUONG_SA: [number, number, number][] = [
 
 export function vnMapSvg(): string {
   const land = smooth(VN);
-  const neighbor = smooth(NEIGHBOR);
+  const neighbor = 'M' + NEIGHBOR.map(([lo, la]) => P(lo, la).map((v) => v.toFixed(1)).join(' ')).join('L') + 'Z';
   const hainan = smooth(HAINAN);
   const [hnX, hnY] = P(105.85, 21.03);
   const [hcmX, hcmY] = P(106.7, 10.78);
@@ -110,24 +111,25 @@ export function vnMapSvg(): string {
   const [cdX, cdY] = P(106.6, 8.7);
   // lưới kinh vĩ độ
   let grid = '';
-  for (let lon = 102; lon <= 118; lon += 2) {
+  for (let lon = 84; lon <= 136; lon += 2) {
     const [x] = P(lon, 0);
-    grid += `<line x1="${x}" y1="0" x2="${x}" y2="${MAP_H}"/>`;
+    grid += `<line x1="${x}" y1="-600" x2="${x}" y2="${MAP_H + 600}"/>`;
   }
-  for (let lat = 8; lat <= 24; lat += 2) {
+  for (let lat = 0; lat <= 32; lat += 2) {
     const [, y] = P(0, lat);
-    grid += `<line x1="0" y1="${y}" x2="${MAP_W}" y2="${y}"/>`;
+    grid += `<line x1="-1200" y1="${y}" x2="${MAP_W + 1200}" y2="${y}"/>`;
   }
   const isle = (cx: number, cy: number, rx: number, ry: number, rot = 0) =>
     `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="url(#mp_land)" stroke="#7a5a2e" stroke-width="1"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_W} ${MAP_H}" preserveAspectRatio="xMidYMid meet">
 <defs>
-  <radialGradient id="mp_sea" cx="0.62" cy="0.55" r="0.75"><stop offset="0" stop-color="#1c86b4"/><stop offset="0.55" stop-color="#0f5c8c"/><stop offset="1" stop-color="#062a4a"/></radialGradient>
+  <radialGradient id="mp_sea" gradientUnits="userSpaceOnUse" cx="${MAP_W * 0.62}" cy="${MAP_H * 0.55}" r="${MAP_H * 0.9}"><stop offset="0" stop-color="#1c86b4"/><stop offset="0.55" stop-color="#0f5c8c"/><stop offset="1" stop-color="#062a4a"/></radialGradient>
   <linearGradient id="mp_land" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf0d4"/><stop offset="1" stop-color="#e9d3a4"/></linearGradient>
   <pattern id="mp_hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="7" stroke="#b49a6b" stroke-width="0.8" stroke-opacity="0.35"/></pattern>
   <filter id="mp_glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
 </defs>
-<rect width="${MAP_W}" height="${MAP_H}" fill="url(#mp_sea)"/>
+<rect x="-1200" y="-600" width="${MAP_W + 2400}" height="${MAP_H + 1200}" fill="#062a4a"/>
+<rect x="-1200" y="-600" width="${MAP_W + 2400}" height="${MAP_H + 1200}" fill="url(#mp_sea)"/>
 <g stroke="#bfefff" stroke-opacity="0.1" stroke-width="1">${grid}</g>
 <!-- đường đẳng sâu -->
 <g fill="none" stroke-linejoin="round">
@@ -155,7 +157,7 @@ ${isle(pqX, pqY, 7, 13, 10)}${isle(cdX, cdY, 4, 3)}
   <text x="${tsX + 10}" y="${tsY + 125}" font-size="14" fill="#ffc75f">(Việt Nam)</text>
   <text x="${P(112.4, 14)[0]}" y="${P(112.4, 14)[1]}" font-size="34" font-style="italic" font-weight="600" fill="#bff3ff" fill-opacity="0.55" letter-spacing="8">BIỂN ĐÔNG</text>
   <text x="${P(107.1, 19.6)[0]}" y="${P(107.1, 19.6)[1]}" font-size="15" font-style="italic" font-weight="600" fill="#d6f8ff" fill-opacity="0.8">Vịnh Bắc Bộ</text>
-  <text x="${P(104.6, 15.2)[0]}" y="${P(104.6, 15.2)[1]}" font-size="30" font-weight="800" fill="#7a5a2e" fill-opacity="0.75" letter-spacing="6" transform="rotate(-62 ${P(104.6, 15.2)[0]} ${P(104.6, 15.2)[1]})">VIỆT NAM</text>
+  <text x="${P(104.55, 21.75)[0]}" y="${P(104.55, 21.75)[1]}" font-size="21" font-weight="800" fill="#7a5a2e" fill-opacity="0.8" letter-spacing="4">VIỆT NAM</text>
 </g>
 <g font-family="Be Vietnam Pro, sans-serif" font-size="13" font-weight="600" fill="#4a3518">
   <circle cx="${hnX}" cy="${hnY}" r="5" fill="#e5484d" stroke="#fff" stroke-width="1.5"/><text x="${hnX - 10}" y="${hnY - 8}" text-anchor="end">Hà Nội</text>

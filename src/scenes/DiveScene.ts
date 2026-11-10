@@ -89,6 +89,8 @@ export class DiveScene extends Phaser.Scene {
   lowO2Beep = 0;
   bubbleT = 0;
   bubbles!: Phaser.GameObjects.Particles.ParticleEmitter;
+  sand!: Phaser.GameObjects.Particles.ParticleEmitter;
+  sandT = 0;
   scanRing: Phaser.GameObjects.Graphics | null = null;
   scanR = 0;
   session = { photos: [] as PhotoResult[], newSpecies: [] as string[], research: 0, green: 0, trash: 0, coralHits: 0, dangerHits: [] as string[] };
@@ -110,6 +112,7 @@ export class DiveScene extends Phaser.Scene {
     this.trash = [];
     this.motes = [];
     this.rays = [];
+    this.shadows = new Map();
     this.diver = null;
     this.oxygen = 1;
     this.elapsed = 0;
@@ -158,7 +161,8 @@ export class DiveScene extends Phaser.Scene {
     await this.spawnTrash(seed);
     if (p.mode === 'dive') await this.spawnDiver();
     const cam = this.cameras.main;
-    cam.setBounds(0, p.tier === 1 ? -260 : 0, this.world.W, this.world.H + 120);
+    const camTop = p.tier === 1 ? -260 : 0;
+    cam.setBounds(0, camTop, this.world.W, this.world.H + 330 - camTop);
     this.applyZoom();
     if (p.mode === 'title') {
       this.camDriftX = 600 + Math.random() * 1500;
@@ -208,6 +212,18 @@ export class DiveScene extends Phaser.Scene {
       g.generateTexture('bubble', 24, 24);
       g.destroy();
     }
+    if (!this.textures.exists('shadow')) {
+      const c = this.textures.createCanvas('shadow', 128, 48)!;
+      const ctx = c.getContext();
+      const g = ctx.createRadialGradient(64, 24, 2, 64, 24, 62);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.55, 'rgba(255,255,255,0.55)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.scale(1, 48 / 128);
+      ctx.fillRect(0, 0, 128, 128);
+      c.refresh();
+    }
     if (!this.textures.exists('ray')) {
       const c = this.textures.createCanvas('ray', 128, 512)!;
       const ctx = c.getContext();
@@ -220,6 +236,7 @@ export class DiveScene extends Phaser.Scene {
       ctx.globalCompositeOperation = 'destination-in';
       const gy = ctx.createLinearGradient(0, 0, 0, 512);
       gy.addColorStop(0, 'rgba(0,0,0,1)');
+      gy.addColorStop(0.55, 'rgba(0,0,0,0.75)');
       gy.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = gy;
       ctx.fillRect(0, 0, 128, 512);
@@ -234,22 +251,34 @@ export class DiveScene extends Phaser.Scene {
       emitting: false,
     });
     this.bubbles.setDepth(26);
+    this.sand = this.add.particles(0, 0, 'dot', {
+      lifespan: 1500,
+      speedY: { min: -46, max: -12 },
+      speedX: { min: -30, max: 30 },
+      scale: { start: 0.5, end: 2.6 },
+      alpha: { start: 0.32, end: 0 },
+      tint: 0xe6dcc0,
+      emitting: false,
+    });
+    this.sand.setDepth(19);
   }
 
   private makeRays() {
     const t = this.params.tier;
     if (t === 3) return;
     const r = rng(77);
-    const n = 9;
+    const n = 28;
     for (let i = 0; i < n; i++) {
-      const img = this.add.image(r() * this.world.W, -30, 'ray').setOrigin(0.5, 0);
+      const front = i % 3 === 0;
+      const img = this.add.image(((i + r()) / n) * this.world.W, -30, 'ray').setOrigin(0.5, 0);
       img.setBlendMode(Phaser.BlendModes.ADD);
-      img.setDisplaySize(140 + r() * 260, (t === 1 ? 1500 : 900) + r() * 600);
-      img.setRotation(-0.22 + r() * 0.12);
-      img.setAlpha(t === 1 ? 0.11 : 0.05);
-      img.setDepth(-40);
+      img.setDisplaySize(110 + r() * 260, (t === 1 ? this.world.H * 0.9 : 900) + r() * 400);
+      img.setRotation(-0.24 + r() * 0.12);
+      img.setAlpha((t === 1 ? 0.2 : 0.06) * (front ? 0.45 : 1));
+      img.setDepth(front ? 14 : -40);
       img.setData('phase', r() * 6);
       img.setData('base', img.alpha);
+      img.setData('rot', img.rotation);
       this.rays.push(img);
     }
   }
@@ -276,28 +305,42 @@ export class DiveScene extends Phaser.Scene {
     if (!pool.length) return [];
     const total = CONFIG.spawn.creaturesPerDive[p.tier];
     const picks: { sp: Species; n: number }[] = [];
+    const groupOf = (sp: Species) => {
+      if (sp.id === 'ca_khoang_co') return 2 + Math.floor(r() * 2);
+      if (sp.behavior !== 'school') return 1;
+      return sp.sizeCm >= 100 ? 3 + Math.floor(r() * 2) : 5 + Math.floor(r() * 4);
+    };
+    /** số lần tối đa một loài được chọn (loài to/đàn thì ít hơn để không chật màn hình) */
+    const cap = (sp: Species) => (sp.rarity === 'huyen_thoai' ? 1 : sp.rarity === 'hiem' ? 1 : sp.behavior === 'school' ? (sp.sizeCm >= 100 ? 1 : 2) : sp.sizeCm >= 150 ? 2 : sp.id === 'ca_khoang_co' ? 4 : 3);
+    const used = new Map<string, number>();
+    const add = (sp: Species) => {
+      used.set(sp.id, (used.get(sp.id) ?? 0) + 1);
+      picks.push({ sp, n: groupOf(sp) });
+    };
     // bảo đảm mỗi loài thường/ít gặp xuất hiện ít nhất 1 lần; loài hiếm 65%
     for (const sp of pool) {
-      if (sp.rarity === 'thuong_gap' || sp.rarity === 'it_gap') picks.push({ sp, n: 1 });
-      else if (sp.rarity === 'hiem' && r() < 0.65) picks.push({ sp, n: 1 });
+      if (sp.rarity === 'thuong_gap' || sp.rarity === 'it_gap') add(sp);
+      else if (sp.rarity === 'hiem' && r() < 0.65) add(sp);
     }
     const legend = pool.filter((s) => s.rarity === 'huyen_thoai');
     const dives = Save.data.stats.divesByRegion[p.region] ?? 0;
     const chance = CONFIG.spawn.legendaryChance + Math.min(0.35, dives * 0.06);
-    if (legend.length && (r() < chance || p.mode === 'title')) picks.push({ sp: legend[Math.floor(r() * legend.length)], n: 1 });
-    const nonLegend = pool.filter((s) => s.rarity !== 'huyen_thoai');
-    const wsum = nonLegend.reduce((a, s) => a + RARITY_INFO[s.rarity].weight, 0);
-    while (picks.reduce((a, q) => a + q.n, 0) < total && nonLegend.length) {
+    if (legend.length && (r() < chance || p.mode === 'title')) add(legend[Math.floor(r() * legend.length)]);
+    const count = () => picks.reduce((a, q) => a + q.n, 0);
+    for (let guard = 0; guard < 200 && count() < total; guard++) {
+      const avail = pool.filter((s) => s.rarity !== 'huyen_thoai' && (used.get(s.id) ?? 0) < cap(s));
+      if (!avail.length) break;
+      const wsum = avail.reduce((a, s) => a + RARITY_INFO[s.rarity].weight, 0);
       let k = r() * wsum;
-      let chosen = nonLegend[0];
-      for (const s of nonLegend) {
+      let chosen = avail[0];
+      for (const s of avail) {
         k -= RARITY_INFO[s.rarity].weight;
         if (k <= 0) {
           chosen = s;
           break;
         }
       }
-      picks.push({ sp: chosen, n: 1 });
+      add(chosen);
     }
     return picks;
   }
@@ -308,10 +351,10 @@ export class DiveScene extends Phaser.Scene {
     const W = this.world.W;
     const anemones = [...this.world.anemones];
     let ai = 0;
-    for (const { sp } of picks) {
+    for (const { sp, n } of picks) {
       const art = getArt(sp.id);
       const built = await buildCreature(this, art, displayLengthFor(sp.sizeCm, art));
-      const groupSize = sp.behavior === 'school' ? 4 + Math.floor(r() * 4) : sp.id === 'ca_khoang_co' ? 2 + Math.floor(r() * 2) : 1;
+      const groupSize = n;
       let x = 400 + r() * (W - 800);
       if (sp.id === 'ca_khoang_co' && anemones.length) {
         const a = anemones[ai++ % anemones.length];
@@ -366,7 +409,7 @@ export class DiveScene extends Phaser.Scene {
 
   private async spawnDiver() {
     const sub = this.params.tier === 3;
-    const built = await buildCreature(this, sub ? subArt : diverArt, sub ? 230 : 156);
+    const built = await buildCreature(this, sub ? subArt : diverArt, sub ? 250 : 190);
     this.diver = new CreatureView(this, 0, 0, built);
     this.diver.setDepth(20);
     this.dx = 700;
@@ -446,14 +489,18 @@ export class DiveScene extends Phaser.Scene {
       const onScreen = c.x > viewL && c.x < viewR;
       if (c.sp.behavior !== 'fast_pass') c.view.setVisible(onScreen);
       if (c.view.visible) c.view.tick(dt);
+      this.shadowFor(c.uid, c.x, c.y, c.view.halfW, c.view.visible && c.hidden < 0.5 && c.sp.behavior !== 'camouflage' ? c.view.alpha : 0);
       if (this.diver && !this.ended) this.checkDanger(c);
     }
+    if (this.diver) this.shadowFor('diver', this.dx, this.dy, 85, this.ended ? 0 : 1);
 
     this.updateTrash(dt, time);
     this.world.update(cam, time, dt);
     this.updateMotes(dt, cam);
     for (const ray of this.rays) {
-      ray.alpha = (ray.getData('base') as number) * (0.6 + 0.4 * Math.sin(time * 0.0004 + (ray.getData('phase') as number)));
+      const ph = ray.getData('phase') as number;
+      ray.alpha = (ray.getData('base') as number) * (0.55 + 0.45 * Math.sin(time * 0.0005 + ph));
+      ray.rotation = (ray.getData('rot') as number) + Math.sin(time * 0.00021 + ph * 1.7) * 0.025;
     }
     if (this.scanRing) {
       this.scanR += dt * 900;
@@ -474,6 +521,28 @@ export class DiveScene extends Phaser.Scene {
         this.emitHud();
       }
     }
+  }
+
+  private shadows = new Map<string, Phaser.GameObjects.Image>();
+  /** Bóng đổ mềm lên đáy khi ở gần đáy (rõ nhất ở Tầng 1). */
+  private shadowFor(id: string, x: number, y: number, halfW: number, vis: number) {
+    const gy = this.world.groundY(x);
+    const hgt = gy - y;
+    const k = this.params.tier === 1 ? 0.3 : this.params.tier === 2 ? 0.16 : 0;
+    const a = vis * k * Math.max(0, 1 - hgt / 240);
+    let img = this.shadows.get(id);
+    if (a <= 0.01) {
+      img?.setVisible(false);
+      return;
+    }
+    if (!img) {
+      img = this.add.image(0, 0, 'shadow').setDepth(10.5).setTint(0x06243a);
+      this.shadows.set(id, img);
+    }
+    const grow = 1 + hgt / 300;
+    const slope = (this.world.groundY(x + 20) - this.world.groundY(x - 20)) / 40;
+    img.setVisible(true).setPosition(x + 14, gy + 6).setAlpha(a).setRotation(Math.atan(slope));
+    img.setDisplaySize(halfW * 1.7 * grow, Math.max(8, halfW * 0.34 * grow));
   }
 
   lampRange() {
@@ -519,7 +588,7 @@ export class DiveScene extends Phaser.Scene {
       this.dy = minY;
       this.dvy = Math.max(0, this.dvy);
     }
-    const gy = this.world.groundY(this.dx) - 34;
+    const gy = this.world.groundY(this.dx) - 40;
     if (this.dy > gy) {
       this.dy = gy;
       this.dvy = Math.min(0, this.dvy) * 0.3;
@@ -578,9 +647,18 @@ export class DiveScene extends Phaser.Scene {
     this.bubbleT -= dt;
     if (this.bubbleT <= 0) {
       this.bubbleT = sprint ? 1.2 : 2.6 + Math.random();
-      const hx = this.dx + this.diver!.facing * (this.params.tier === 3 ? -120 : 66);
+      const hx = this.dx + this.diver!.facing * (this.params.tier === 3 ? -130 : 80);
       this.bubbles.explode(4 + Math.floor(Math.random() * 4), hx, this.dy - 8);
       if (Math.random() < 0.5) Sound.bubble();
+    }
+    // ---- cát cuộn khi chân vịt quạt sát đáy ----
+    if (speedNow > 90 && this.dy > this.world.groundY(this.dx) - 80) {
+      this.sandT -= dt;
+      if (this.sandT <= 0) {
+        this.sandT = 0.09;
+        const sx = this.dx - this.diver!.facing * 75;
+        this.sand.explode(2, sx, this.world.groundY(sx) - 4);
+      }
     }
     // ---- đèn ----
     if (Input.lampToggle) {
@@ -588,7 +666,8 @@ export class DiveScene extends Phaser.Scene {
       this.lampOn = !this.lampOn;
       Sound.ui();
     }
-    const aimP = this.aiming ? this.aimPoint() : null;
+    const mouseRecent = !Input.usingTouch && performance.now() - Input.pointerMovedAt < 2500;
+    const aimP = this.aiming || (mouseRecent && this.lampOn) ? this.aimPoint() : null;
     const targetAng = aimP ? Math.atan2(aimP.y - this.dy, aimP.x - this.dx) : this.diver!.facing > 0 ? Math.atan2(this.dvy * 0.3, 1) : Math.atan2(this.dvy * 0.3, -1);
     this.lampAng = Phaser.Math.Angle.RotateTo(this.lampAng, targetAng, dt * 5);
     // ---- quét ----
@@ -861,7 +940,7 @@ export class DiveScene extends Phaser.Scene {
     const depth = this.world.depthAt(focusY);
     const absorb = t === 1 ? Math.min(0.35, depth / 90) : t === 2 ? Math.min(0.92, 0.35 + (depth - 30) / 140) : 0.95;
     p.absorb = absorb;
-    p.dark = t === 1 ? 0 : t === 2 ? Math.min(0.55, (depth - 30) / 260) : 0.86;
+    p.dark = t === 1 ? 0 : t === 2 ? Math.min(0.3, (depth - 30) / 420) : 0.86;
     p.emissive = t === 3 ? 1 : 0;
     p.water = this.world.waterRGB();
     p.fog = t === 1 ? 0.06 : t === 2 ? 0.18 : 0.12;

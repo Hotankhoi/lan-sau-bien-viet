@@ -153,8 +153,8 @@ export function updateCreature(c: Creature, d: DiverInfo, world: World, dt: numb
       c.x += c.vx * dt;
       c.y += (gy - c.y) * Math.min(1, dt * 3);
       const tint = sp.behavior === 'camouflage' && c.revealT <= 0;
-      c.view.setAlpha(tint ? 0.42 : 1);
-      if (sp.behavior === 'camouflage') c.view.tintAll(tint ? 0x8a8478 : null);
+      c.view.setAlpha(tint ? 0.34 : 1);
+      if (sp.behavior === 'camouflage') c.view.tintAll(tint ? 0xb4b0a2 : null);
       c.view.intensity = 0.3;
       return { scaredRare };
     }

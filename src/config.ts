@@ -45,10 +45,10 @@ export const CONFIG = {
     scareRare: -5,
   },
   lamp: {
-    range: 430,
-    cone: 0.42,
-    rangeHi: 640,
-    coneHi: 0.52,
+    range: 560,
+    cone: 0.5,
+    rangeHi: 800,
+    coneHi: 0.62,
   },
   danger: {
     contactCooldown: 3,
