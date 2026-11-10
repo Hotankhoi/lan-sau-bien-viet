@@ -50,6 +50,21 @@ export const CONFIG = {
     rangeHi: 800,
     coneHi: 0.62,
   },
+  /** Loài sống sát đáy/rạn: chiều cao tối đa trên đáy khi sinh ra và khi lượn (px). Loài không ghi = bơi tự do. */
+  habitat: {
+    bach_tuoc_dom_xanh: 60,
+    ca_mao_tien: 220,
+    muc_nang: 260,
+    ca_vet_dau_gu: 420,
+    ca_ngua_den: 90,
+    ca_song_cham_nau: 200,
+    ran_bien_khoanh: 260,
+    ca_buom_chi: 260,
+    ca_dia: 320,
+    ca_napoleon: 380,
+    muc_la: 320,
+    muc_ong: 380,
+  } as Record<string, number>,
   danger: {
     contactCooldown: 3,
     knockback: 420,

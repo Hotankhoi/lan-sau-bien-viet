@@ -98,6 +98,7 @@ export class DiveScene extends Phaser.Scene {
   tutorialMoved = 0;
   tutorialT = 0;
   camDriftX = 0;
+  titleY = 0;
   private offs: (() => void)[] = [];
 
   constructor() {
@@ -166,7 +167,8 @@ export class DiveScene extends Phaser.Scene {
     this.applyZoom();
     if (p.mode === 'title') {
       this.camDriftX = 600 + Math.random() * 1500;
-      cam.centerOn(this.camDriftX, this.world.H * 0.62);
+      this.titleY = this.world.groundY(this.camDriftX) - 250;
+      cam.centerOn(this.camDriftX, this.titleY);
     } else {
       cam.centerOn(this.dx, this.dy);
       Sound.startAmbient((p.tier - 1) / 2);
@@ -365,20 +367,25 @@ export class DiveScene extends Phaser.Scene {
         x = rock.x + (r() < 0.5 ? -1 : 1) * (rock.r + 30);
       }
       const gy = this.world.groundY(x);
+      const hab = CONFIG.habitat[sp.id];
       const group: Creature[] = [];
       for (let i = 0; i < groupSize; i++) {
-        const gx = x + (r() - 0.5) * 160;
+        const gx = x + (r() - 0.5) * (sp.id === "ca_khoang_co" ? 90 : 160);
         let y: number;
         const ground = this.world.groundY(gx);
         if (sp.behavior === 'static' || sp.behavior === 'camouflage' || sp.behavior === 'buried') y = ground - 10;
         else if (sp.id === 'ca_khoang_co') y = gy - 70 - r() * 60;
+        else if (hab) y = ground - 45 - art.viewBox[1] * 0.02 - r() * hab;
         else y = Phaser.Math.Clamp(ground - 130 - r() * Math.min(700, ground * 0.6), 160, ground - 110);
         const view = new CreatureView(this, gx, y, built);
         view.setDepth(sp.behavior === 'buried' ? 9 : 15 + r() * 2);
         const c = new Creature(sp, view, gx, y);
+        if (hab) c.roamY = Math.max(30, hab * 0.5);
         if (sp.id === 'ca_khoang_co') {
           c.homeX = x;
-          c.homeY = gy - 80;
+          c.homeY = gy - 85;
+          c.roamX = 75;
+          c.roamY = 40;
         }
         if (groupSize > 1 && sp.behavior === 'school') {
           c.group = group;
@@ -466,7 +473,10 @@ export class DiveScene extends Phaser.Scene {
     if (this.params.mode === 'title') {
       this.camDriftX += dt * 28;
       if (this.camDriftX > this.world.W - 900) this.camDriftX = 600;
-      cam.centerOn(this.camDriftX, this.world.H * 0.62 + Math.sin(time * 0.0002) * 80);
+      // bám theo đáy để rạn luôn nằm ở nửa dưới màn hình
+      const targetY = this.world.groundY(this.camDriftX) - 250 + Math.sin(time * 0.0002) * 40;
+      this.titleY += (targetY - this.titleY) * Math.min(1, dt * 0.8);
+      cam.centerOn(this.camDriftX, this.titleY);
     }
 
     const info: DiverInfo = this.diver

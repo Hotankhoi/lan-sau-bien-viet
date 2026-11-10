@@ -283,9 +283,10 @@ export function eye(
       pupil = `<ellipse cx="${px}" cy="${py}" rx="${r * 0.16}" ry="${r * 0.62}" fill="${pc}"/>`;
       break;
     case 'w': {
-      const w = r * 0.7;
-      const h = r * 0.5;
-      pupil = `<path d="M${px - w} ${py - h * 0.6} Q${px - w * 0.5} ${py + h} ${px} ${py - h * 0.1} Q${px + w * 0.5} ${py + h} ${px + w} ${py - h * 0.6} Q${px} ${py + h * 0.2} ${px - w} ${py - h * 0.6}Z" fill="${pc}"/>`;
+      // đồng tử chữ W mảnh (dải cong mềm) – tránh trông như đang "cau mày"
+      const w = r * 0.6;
+      const h = r * 0.4;
+      pupil = `<path d="M${px - w} ${py - h * 0.45}C${px - w * 0.92} ${py + h * 0.8} ${px - w * 0.25} ${py + h * 0.8} ${px} ${py - h * 0.05}C${px + w * 0.25} ${py + h * 0.8} ${px + w * 0.92} ${py + h * 0.8} ${px + w} ${py - h * 0.45}" fill="none" stroke="${pc}" stroke-width="${(r * 0.2).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`;
       break;
     }
   }

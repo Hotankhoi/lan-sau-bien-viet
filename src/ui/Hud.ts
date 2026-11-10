@@ -97,7 +97,10 @@ export class Hud {
       this.flash,
     );
     const touch = touchLayer(() => this.openJournal());
-    if (touch) this.el.appendChild(touch);
+    if (touch) {
+      this.el.appendChild(touch);
+      this.el.classList.add('has-touch');
+    }
     root.appendChild(this.el);
 
     const on = <T>(ev: string, fn: (a: T) => void) => {

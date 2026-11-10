@@ -1379,3 +1379,16 @@ input[type='range'] {
 .dcard.glass {
   background: var(--glass-strong);
 }
+
+.tutorial .btn {
+  white-space: nowrap;
+}
+
+.hud.has-touch .hud-tools {
+  display: none;
+}
+@media (max-width: 1200px) {
+  .toasts {
+    top: 124px;
+  }
+}

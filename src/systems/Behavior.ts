@@ -46,6 +46,9 @@ export class Creature {
   /** mức được đèn chiếu (0..1) – cho deep_glow */
   litAmt = 0;
   contactCooldown = 0;
+  /** biên độ lượn theo chiều dọc quanh điểm nhà (px) – loài sống sát đáy thì nhỏ */
+  roamY = 150;
+  roamX = 450;
   readonly speed: number;
   readonly radius: number;
   /** id ổn định để tránh trùng */
@@ -108,9 +111,11 @@ export function updateCreature(c: Creature, d: DiverInfo, world: World, dt: numb
   // ---- độ hoảng ----
   const fearR = 240 + c.view.displayLength * 0.6;
   if (c.active && dist < fearR && c.hidden < 0.9) {
-    const fast = d.speed > CONFIG.diver.calmSpeed;
-    const shyK = sp.behavior === 'shy' ? 1.6 : sp.behavior === 'curious' ? 0.35 : 1;
-    if (fast) c.alarm += dt * (d.speed / CONFIG.diver.calmSpeed) * 0.5 * shyK * (1 - dist / fearR + 0.3);
+    const fast = d.speed > CONFIG.diver.calmSpeed * 1.25;
+    const shyK = sp.behavior === 'shy' ? 1.5 : sp.behavior === 'curious' ? 0.35 : 1;
+    // chỉ hoảng khi người chơi LAO TỚI (hướng bơi chĩa về phía sinh vật)
+    const approach = d.speed > 1 ? Math.max(0.2, (d.vx * dx + d.vy * dy) / (d.speed * (dist || 1))) : 0;
+    if (fast) c.alarm += dt * (d.speed / CONFIG.diver.calmSpeed) * 0.3 * shyK * approach * (1 - dist / fearR + 0.3);
     if (lit > 0.4 && world.tier > 1) c.alarm += dt * 0.22 * shyK;
     if (dist < 70) c.alarm += dt * 0.6 * shyK;
   }
@@ -310,10 +315,10 @@ export function updateCreature(c: Creature, d: DiverInfo, world: World, dt: numb
 
 function wander(c: Creature, dt: number) {
   c.retarget -= dt;
-  const reached = Math.hypot(c.tx - c.x, c.ty - c.y) < 40;
+  const reached = Math.hypot(c.tx - c.x, c.ty - c.y) < Math.min(40, c.roamX * 0.3);
   if (c.retarget <= 0 || reached) {
     c.retarget = 4 + Math.random() * 5;
-    c.tx = c.homeX + (Math.random() - 0.5) * 900;
-    c.ty = c.homeY + (Math.random() - 0.5) * 300;
+    c.tx = c.homeX + (Math.random() - 0.5) * c.roamX * 2;
+    c.ty = c.homeY + (Math.random() - 0.5) * Math.min(300, c.roamY * 2);
   }
 }

@@ -99,6 +99,14 @@ export function resetControls() {
   recompute();
 }
 
+function capture(el: HTMLElement, id: number) {
+  try {
+    el.setPointerCapture(id);
+  } catch {
+    /* con trỏ không còn hoạt động – bỏ qua */
+  }
+}
+
 const isTouchDevice = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 /** Lớp điều khiển cảm ứng (chỉ hiện trên thiết bị cảm ứng). */
@@ -125,7 +133,7 @@ export function touchLayer(onJournal: () => void): HTMLElement | null {
     Sound.unlock();
     Input.usingTouch = true;
     jid = e.pointerId;
-    joy.setPointerCapture(e.pointerId);
+    capture(joy, e.pointerId);
     moveJoy(e);
   });
   joy.addEventListener('pointermove', (e) => {
@@ -145,7 +153,7 @@ export function touchLayer(onJournal: () => void): HTMLElement | null {
     b.addEventListener('pointerdown', (e) => {
       Sound.unlock();
       Input.usingTouch = true;
-      b.setPointerCapture(e.pointerId);
+      capture(b, e.pointerId);
       b.classList.add('held');
       down();
       recompute();
