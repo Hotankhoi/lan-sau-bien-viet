@@ -24,3 +24,4 @@
 | 2026-11-10 | Loài nguy hiểm sinh ra ngay chỗ xuất phát | Vùng an toàn 480 px quanh điểm bắt đầu | Tránh mất oxy ngay giây đầu, nhất là với học sinh mới chơi. |
 | 2026-11-10 | Kích thước thợ lặn | Tăng từ 156 lên 190 px | Thợ lặn nhỏ hơn cả cá vẹt 1,3 m là sai tỉ lệ. |
 - 2026-11-11: Cá đuối manta – giữ tên khoa học *Mobula birostris* theo species.json (bản giao việc lỡ ghi *M. alfredi*); hình vẽ dùng mảng vai trắng hình chữ T, khớp với *M. birostris*. Kích thước hiển thị 230 px (sải cánh ~325 px) để không che kín màn hình.
+- 2026-11-11: Sửa lỗi `scalePattern` (style-bible): các cung vảy trước đây nằm ngoài thẻ `<path>` nên không hiện; nay mọi loài dùng thân chuẩn có vảy mờ 0.08–0.15 đúng mục 7.2 (loài không vảy đã đặt `scales:false`). Phát hiện bởi agent vẽ cá đèn lồng.

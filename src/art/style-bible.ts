@@ -178,7 +178,7 @@ export function scalePattern(id: string, o: { size?: number; color?: string; opa
   const h = s * 0.8;
   const arc = (x: number, y: number) => `M${x - s / 2} ${y} A ${s / 2} ${s / 2} 0 0 0 ${x + s / 2} ${y}`;
   // vảy nhìn từ bên: cung mở về phía đuôi (bên trái)
-  return `<pattern id="${id}" width="${s}" height="${h * 2}" patternUnits="userSpaceOnUse" patternTransform="rotate(90)"><g fill="none" stroke="${c}" stroke-width="${sw}" stroke-opacity="${op}">${arc(s / 2, 0)}${arc(0, h)}${arc(s, h)}${arc(s / 2, h * 2)}</g></pattern>`;
+  return `<pattern id="${id}" width="${s}" height="${h * 2}" patternUnits="userSpaceOnUse" patternTransform="rotate(90)"><g fill="none" stroke="${c}" stroke-width="${sw}" stroke-opacity="${op}"><path d="${arc(s / 2, 0)}${arc(0, h)}${arc(s, h)}${arc(s / 2, h * 2)}"/></g></pattern>`;
 }
 
 /** Pattern chấm tròn đều (đốm). */
