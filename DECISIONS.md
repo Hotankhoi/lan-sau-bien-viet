@@ -23,3 +23,4 @@
 | 2026-11-10 | Sinh vật nhút nhát hoảng quá nhanh, bị trừ Điểm Xanh oan | Chỉ tăng độ hoảng khi bơi nhanh VÀ hướng về phía sinh vật; giảm tốc độ tăng | Dạy "tiếp cận nhẹ nhàng" nhưng không phạt người chơi bơi ngang qua. |
 | 2026-11-10 | Loài nguy hiểm sinh ra ngay chỗ xuất phát | Vùng an toàn 480 px quanh điểm bắt đầu | Tránh mất oxy ngay giây đầu, nhất là với học sinh mới chơi. |
 | 2026-11-10 | Kích thước thợ lặn | Tăng từ 156 lên 190 px | Thợ lặn nhỏ hơn cả cá vẹt 1,3 m là sai tỉ lệ. |
+- 2026-11-11: Cá đuối manta – giữ tên khoa học *Mobula birostris* theo species.json (bản giao việc lỡ ghi *M. alfredi*); hình vẽ dùng mảng vai trắng hình chữ T, khớp với *M. birostris*. Kích thước hiển thị 230 px (sải cánh ~325 px) để không che kín màn hình.
