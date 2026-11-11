@@ -7,7 +7,7 @@ import { chromium, type Browser, type Page } from 'playwright-core';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const URL = process.env.URL ?? 'http://127.0.0.1:5173/';
+const URL = process.env.URL ?? 'http://127.0.0.1:5173/lan-sau-bien-viet/';
 const OUT = process.env.PT_OUT ?? join(process.cwd(), 'preview', 'screens');
 mkdirSync(OUT, { recursive: true });
 

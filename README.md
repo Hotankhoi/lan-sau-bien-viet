@@ -1,8 +1,10 @@
 # Lặn Sâu: Sổ tay Biển Việt
 
-Game giáo dục 2D chạy trên trình duyệt: người chơi là thợ lặn nghiên cứu, lặn khám phá biển Việt Nam, **chụp ảnh** (không bắt) 43 loài sinh vật biển, ghi vào Sổ tay. Toàn bộ hình ảnh được vẽ bằng mã (SVG + WebGL), âm thanh tạo bằng Web Audio.
+🎮 **Chơi ngay:** https://hotankhoi.github.io/lan-sau-bien-viet/
 
-## Chạy trên máy (dành cho đội dự án)
+Game giáo dục 2D chạy trên trình duyệt: người chơi là thợ lặn nghiên cứu, lặn khám phá 4 vùng biển Việt Nam (Bắc Bộ, miền Trung, miền Nam, khơi xa) qua 3 tầng độ sâu, **chụp ảnh** (không bắt) 43 loài sinh vật biển, ghi vào Sổ tay. Toàn bộ hình ảnh được vẽ bằng mã (SVG + WebGL), âm thanh tạo bằng Web Audio. Chơi được trên máy tính và máy tính bảng/điện thoại (cảm ứng).
+
+## Chạy trên máy
 
 Cần cài [Node.js](https://nodejs.org) bản 20 trở lên.
 
@@ -14,26 +16,16 @@ npm install
 npm run dev
 ```
 
-Mở trình duyệt tại địa chỉ hiện ra (thường là http://127.0.0.1:5173).
+Mở trình duyệt tại địa chỉ hiện ra (thường là http://127.0.0.1:5173/lan-sau-bien-viet/).
 
-## Tạo bản build để đưa lên mạng
+## Đưa lên mạng (GitHub Pages)
 
-```bash
-npm run build
-```
+Repo đã có sẵn `.github/workflows/deploy.yml`: mỗi lần push lên nhánh `main`, GitHub tự chạy `npm ci` + `npm run build` rồi đưa thư mục `dist/` lên GitHub Pages.
 
-Kết quả nằm trong thư mục `dist/` – đây là trang web tĩnh, mở được trên mọi dịch vụ host tĩnh miễn phí.
-
-### Cách đưa lên mạng (đội tự làm, không cần thẻ tín dụng)
-
-**Cách 1 – Netlify Drop (dễ nhất):** vào https://app.netlify.com/drop, kéo thả cả thư mục `dist/` vào trang. Netlify cho ngay một đường link.
-
-**Cách 2 – GitHub Pages:**
-1. Tạo kho (repository) mới trên GitHub, đẩy mã nguồn lên.
-2. Chạy `npm run build`, rồi đưa nội dung thư mục `dist/` lên nhánh `gh-pages` (hoặc dùng GitHub Actions "Deploy static content").
-3. Vào Settings → Pages, chọn nhánh `gh-pages`. Game đã cấu hình `base: './'` nên chạy được ở đường dẫn con.
-
-**Cách 3 – Cloudflare Pages:** tạo project, chọn "Upload assets", tải lên thư mục `dist/`.
+- **Lần đầu duy nhất:** trên GitHub vào **Settings → Pages → Build and deployment → Source**, chọn **GitHub Actions**.
+- Theo dõi tiến trình ở tab **Actions** của repo; xong sẽ có link chơi ở trên.
+- Game cấu hình `base: '/lan-sau-bien-viet/'` trong `vite.config.ts`. Nếu đổi tên repo thì sửa dòng này cho khớp.
+- Xem thử bản build trên máy: `npm run build` rồi `npm run preview`, mở `http://127.0.0.1:4173/lan-sau-bien-viet/`.
 
 ## Điều khiển
 
@@ -68,7 +60,17 @@ Kết quả nằm trong thư mục `dist/` – đây là trang web tĩnh, mở �
 | `npm run art:preview -- <id>` | Vẽ thử một loài → `preview/species/<id>.png` (không tham số: tất cả + `preview/contact-sheet.png`) |
 | `npx tsx tools/env-preview.ts <vùng>` | Xem thử môi trường một vùng → `preview/env/<vùng>.png` |
 | `npx tsx tools/check-art.ts` | Tìm lỗi NaN trong hình SVG |
-| `npx tsx tools/playtest.ts [all\|ui\|dive]` | Chơi thử tự động (cần `npm run dev` đang chạy) → `preview/screens/` |
+| `npx tsx tools/playtest.ts [all\|ui\|dive]` | Chơi thử tự động (cần `npm run dev` đang chạy; đặt `URL=` để chọn địa chỉ khác) → `preview/screens/` |
 | `npm run refs -- <id>` | Tải ảnh tham khảo từ Wikimedia Commons (chỉ để nhìn khi vẽ, không đưa vào game; thư mục `references/` không được commit) |
 
 Cấu trúc mã: `src/art` (hình vẽ sinh vật/môi trường), `src/scenes` (cảnh lặn Phaser), `src/systems` (thế giới, hành vi, lưu trữ, âm thanh, thành tựu), `src/ui` (giao diện DOM), `src/shaders` (hiệu ứng nước), `src/data` (dữ liệu loài).
+
+## Nguồn dữ liệu
+
+- Dữ liệu sinh vật (`src/data/species.json`) tổng hợp từ: IUCN Red List (iucnredlist.org), FishBase (fishbase.se), World Register of Marine Species – WoRMS (marinespecies.org), Sách Đỏ Việt Nam. Các loài đánh dấu `"needsVerification": true` cần đội kiểm chứng lại.
+- Hình ảnh: toàn bộ sinh vật và môi trường được vẽ bằng mã (SVG/WebGL), không dùng ảnh chụp hay hình vẽ của bên thứ ba. Ảnh Wikimedia Commons chỉ dùng để tham khảo khi vẽ (danh sách và giấy phép: `docs/THAM_KHAO_ANH.md`), không nằm trong game và không được đưa lên repo.
+- Âm thanh tạo trực tiếp bằng Web Audio. Phông chữ Be Vietnam Pro (Google Fonts, giấy phép SIL Open Font License).
+
+## Kê khai sử dụng AI
+
+Mã nguồn và hình minh họa của game được xây dựng với sự hỗ trợ của công cụ AI (Claude). Ý tưởng, thiết kế lối chơi, lựa chọn và kiểm chứng dữ liệu khoa học do nhóm học sinh thực hiện.

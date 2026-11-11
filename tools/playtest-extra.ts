@@ -6,7 +6,7 @@ import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const URL = process.env.URL ?? 'http://127.0.0.1:5173/';
+const URL = process.env.URL ?? 'http://127.0.0.1:5173/lan-sau-bien-viet/';
 const OUT = process.env.PT_OUT ?? join(process.cwd(), 'preview', 'screens');
 mkdirSync(OUT, { recursive: true });
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

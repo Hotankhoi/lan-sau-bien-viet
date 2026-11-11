@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './',
+  // GitHub Pages: https://hotankhoi.github.io/lan-sau-bien-viet/
+  base: '/lan-sau-bien-viet/',
   server: { port: 5173, host: '127.0.0.1' },
   build: {
     target: 'es2020',
