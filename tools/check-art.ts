@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { composeSvg } from '../src/art/contract';
 
-const bad = (s: string) => /NaN|undefined|Infinity/.test(s);
+const BAD = /NaN|undefined|Infinity|d="[^"MmZz]*<|\sd="\s*[^"MmZz\s]/;
+const bad = (s: string) => BAD.test(s);
 let problems = 0;
 const spDir = join(process.cwd(), 'src/art/species');
 for (const f of readdirSync(spDir)) {
@@ -16,7 +17,7 @@ for (const f of readdirSync(spDir)) {
     const svg = composeSvg(art, { mode });
     if (bad(svg)) {
       problems++;
-      const i = svg.search(/NaN|undefined|Infinity/);
+      const i = svg.search(BAD);
       const layer = art.layers.find((l: { svg: string }) => bad(l.svg))?.name ?? (bad(art.defs) ? 'defs' : '?');
       console.log(`✗ ${f} [${mode}] lớp "${layer}": …${svg.slice(Math.max(0, i - 80), i + 20)}…`);
       break;

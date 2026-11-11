@@ -364,7 +364,7 @@ const defs =
   `<pattern id="${u('scalesHi')}" width="6" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-6)">` +
   `<path d="M0 2.5L3 0L6 2.5L3 5Z" fill="none" stroke="#c9cdb6" stroke-opacity="0.1" stroke-width="0.45" stroke-linejoin="round"/>` +
   `</pattern>` +
-  clip(u('bandClip'), bands()) +
+  `<clipPath id="${u('bandClip')}">${bands()}</clipPath>` +
   radial(u('gloss'), [
     [0, '#fffbe2', 0.5],
     [1, '#fffbe2', 0],
