@@ -11,7 +11,7 @@
   { "id": "gentle_giant", "name": "Khổng lồ hiền lành", "desc": "Ghi nhận cá nhám voi", "icon": "🐋" },
   { "id": "abyss", "name": "Chạm đến vực thẳm", "desc": "Lần đầu xuống Tầng 3", "icon": "🌑" },
   { "id": "light_in_dark", "name": "Ánh sáng trong bóng tối", "desc": "Ghi nhận toàn bộ sinh vật Tầng 3", "icon": "✨" },
-  { "id": "protector", "name": "Người bảo vệ", "desc": "Ghi nhận toàn bộ loài VU/EN/CR", "icon": "🛡️" },
+  { "id": "protector", "name": "Người bảo vệ", "desc": "Ghi nhận toàn bộ loài trong tab “Cần bảo vệ” (IUCN VU/EN/CR hoặc Sách Đỏ Việt Nam)", "icon": "🛡️" },
   { "id": "explorer_bac_bo", "name": "Nhà thám hiểm Vịnh Bắc Bộ", "desc": "Hoàn thành 100% vùng Vịnh Bắc Bộ", "icon": "🏝️" },
   { "id": "explorer_mien_trung", "name": "Nhà thám hiểm Biển miền Trung", "desc": "Hoàn thành 100% vùng Biển miền Trung", "icon": "🌊" },
   { "id": "explorer_mien_nam", "name": "Nhà thám hiểm Biển miền Nam", "desc": "Hoàn thành 100% vùng Biển miền Nam", "icon": "🌴" },

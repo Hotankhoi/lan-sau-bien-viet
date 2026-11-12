@@ -25,3 +25,13 @@
 | 2026-11-10 | Kích thước thợ lặn | Tăng từ 156 lên 190 px | Thợ lặn nhỏ hơn cả cá vẹt 1,3 m là sai tỉ lệ. |
 - 2026-11-11: Cá đuối manta – giữ tên khoa học *Mobula birostris* theo species.json (bản giao việc lỡ ghi *M. alfredi*); hình vẽ dùng mảng vai trắng hình chữ T, khớp với *M. birostris*. Kích thước hiển thị 230 px (sải cánh ~325 px) để không che kín màn hình.
 - 2026-11-11: Sửa lỗi `scalePattern` (style-bible): các cung vảy trước đây nằm ngoài thẻ `<path>` nên không hiện; nay mọi loài dùng thân chuẩn có vảy mờ 0.08–0.15 đúng mục 7.2 (loài không vảy đã đặt `scales:false`). Phát hiện bởi agent vẽ cá đèn lồng.
+
+## 2026-11-12 – Dữ liệu bảo tồn & Sách Đỏ (DU_LIEU_BAO_TON.json)
+- **Gộp dữ liệu**: dùng `tools/merge-conservation.py` để thêm `ecosystem`, `redBookVN`, `appearance`, `ecoRole` vào `species.json` (giữ nguyên định dạng gọn) và sinh `src/data/ecosystems.json`. Chạy lại script là cập nhật được khi đội sửa file gốc.
+- **"Cần bảo vệ"** = IUCN VU/EN/CR **hoặc** `redBookVN: true` (hàm `isProtected` trong `types.ts`). Hiện có 16 loài. Thành tựu "Người bảo vệ" dùng đúng danh sách này.
+- **Thẻ ghi nhận đặc biệt** thay cho thẻ "Ghi nhận loài mới" thường khi loài thuộc danh sách "Cần bảo vệ" (không hiện hai thẻ liên tiếp để khỏi làm phiền). Nếu ảnh vừa chụp không có thì dùng hình vẽ của loài.
+- **Vị trí mục mới** trong thẻ chi tiết: ngay dưới tên và hàng huy hiệu (huy hiệu là một phần của phần tên), trước "Kích thước/Vùng biển".
+- **Loài chưa ghi nhận** chỉ hiện bóng đen + vùng/tầng + "Sống ở: <hệ sinh thái>" + gợi ý hành vi; không lộ `appearance`.
+- **Giải thích Sách Đỏ** viết thận trọng ("cần được ưu tiên bảo vệ; nhiều loài bị cấm săn bắt, mua bán") vì việc cấm cụ thể do các văn bản pháp luật khác quy định.
+- Bào ngư chín lỗ chưa có `conservation` trong dữ liệu → dùng thông điệp bảo tồn chung (đội có thể bổ sung).
+- `window.__bus` chỉ có khi chạy `npm run dev` (để Playwright giả lập ảnh chụp), không có trong bản build.

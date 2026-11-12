@@ -1,6 +1,6 @@
 /** Thành tựu: kiểm tra điều kiện sau mỗi sự kiện quan trọng. */
 import achievementsJson from '../data/achievements.json';
-import { SPECIES, type RegionId } from '../data/types';
+import { SPECIES, PROTECTED_SPECIES, type RegionId } from '../data/types';
 import { Save, type SaveData } from './Save';
 import { bus } from '../game/bus';
 
@@ -32,7 +32,7 @@ const CHECKS: Record<string, (d: SaveData) => boolean> = {
   gentle_giant: (d) => has(d, 'ca_nham_voi'),
   abyss: (d) => d.stats.deepestTier >= 3,
   light_in_dark: (d) => SPECIES.filter((s) => s.tier === 3).every((s) => has(d, s.id)),
-  protector: (d) => SPECIES.filter((s) => ['VU', 'EN', 'CR'].includes(s.iucn)).every((s) => has(d, s.id)),
+  protector: (d) => PROTECTED_SPECIES.every((s) => has(d, s.id)),
   explorer_bac_bo: (d) => regionDone(d, 'bac_bo'),
   explorer_mien_trung: (d) => regionDone(d, 'mien_trung'),
   explorer_mien_nam: (d) => regionDone(d, 'mien_nam'),

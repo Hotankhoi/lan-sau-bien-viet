@@ -1,12 +1,13 @@
 /** Sổ tay sinh vật: lưới thẻ theo vùng + bộ lọc + thẻ chi tiết. */
-import { SPECIES, SPECIES_BY_ID, REGIONS, REGION_LABEL, TIER_INFO, RARITY_INFO, DANGER_INFO, IUCN_INFO, BEHAVIOR_HINT, type Species, type RegionId } from '../data/types';
+import { SPECIES, SPECIES_BY_ID, REGIONS, REGION_LABEL, TIER_INFO, RARITY_INFO, DANGER_INFO, IUCN_INFO, BEHAVIOR_HINT, ECOSYSTEM_BY_ID, ECOSYSTEM_ICON, PROTECTED_SPECIES, REDBOOK_COLOR, REDBOOK_INFO, CONSERVATION_FALLBACK, isProtected, type Species, type RegionId } from '../data/types';
 import { getArt } from '../art/species';
 import { Save } from '../systems/Save';
 import { Sound } from '../systems/Audio';
 import { h, clear, artUrl, stars } from './dom';
-import { rarityBadge, dangerBadge } from './Hud';
+import { rarityBadge, dangerBadge, redBookBadge, BOOK_ICON } from './Hud';
+import { ecoChip, ecoPopup } from './Ecosystem';
 
-type Tab = RegionId | 'all';
+type Tab = RegionId | 'all' | 'protect';
 
 export class Journal {
   el: HTMLElement;
@@ -14,6 +15,7 @@ export class Journal {
   private progress: HTMLElement;
   private tabsEl: HTMLElement;
   private tab: Tab = 'all';
+  private banner: HTMLElement = h('div');
   private f = { tier: '', rarity: '', danger: '', iucn: '' };
 
   constructor(
@@ -55,22 +57,33 @@ export class Journal {
   close() {
     this.el.remove();
     this.root.querySelector('.detail')?.remove();
+    this.root.querySelector('.eco-pop')?.remove();
     this.onClose();
   }
 
   private render() {
     clear(this.tabsEl);
-    const tabs: [Tab, string][] = [['all', 'Tất cả'], ...REGIONS.map((r) => [r.id, r.short] as [Tab, string])];
+    const tabs: [Tab, string][] = [['all', 'Tất cả'], ...REGIONS.map((r) => [r.id, r.short] as [Tab, string]), ['protect', '🛡️ Cần bảo vệ']];
     for (const [id, name] of tabs) {
-      const list = id === 'all' ? SPECIES : SPECIES.filter((s) => s.region === id);
+      const list = this.listOf(id);
       const n = list.filter((s) => Save.discovered(s.id)).length;
-      this.tabsEl.appendChild(h('button', { class: `tab${this.tab === id ? ' on' : ''}`, onclick: () => ((this.tab = id), Sound.ui(), this.render()) }, `${name} · ${n}/${list.length}`));
+      this.tabsEl.appendChild(h('button', { class: `tab${id === 'protect' ? ' protect' : ''}${this.tab === id ? ' on' : ''}`, onclick: () => ((this.tab = id), Sound.ui(), this.render()) }, `${name} · ${n}/${list.length}`));
     }
-    const all = this.tab === 'all' ? SPECIES : SPECIES.filter((s) => s.region === this.tab);
+    const all = this.listOf(this.tab);
     const found = all.filter((s) => Save.discovered(s.id)).length;
     clear(this.progress);
     const pct = Math.round((found / all.length) * 100);
     this.progress.append(h('span', { class: 'pill' }, `${found}/${all.length} loài · ${pct}%`), h('div', { class: 'bar', style: 'width:200px' }, h('i', { style: `width:${pct}%` })));
+    this.banner.remove();
+    if (this.tab === 'protect') {
+      this.banner = h(
+        'div',
+        { class: 'protect-banner' },
+        h('div', { class: 'pb-text' }, h('b', {}, `Đã ghi nhận ${found}/${all.length} loài cần được bảo vệ`), h('span', {}, 'Gồm các loài IUCN xếp Sẽ nguy cấp (VU), Nguy cấp (EN), Cực kỳ nguy cấp (CR) hoặc có tên trong Sách Đỏ Việt Nam.')),
+        h('div', { class: 'bar red' }, h('i', { style: `width:${pct}%` })),
+      );
+      this.tabsEl.after(this.banner);
+    }
     const list = all.filter(
       (s) =>
         (!this.f.tier || String(s.tier) === this.f.tier) &&
@@ -81,6 +94,12 @@ export class Journal {
     clear(this.grid);
     list.forEach((sp, i) => this.grid.appendChild(this.card(sp, i)));
     if (!list.length) this.grid.appendChild(h('div', { style: 'color:#a9c9d6;padding:20px' }, 'Không có loài nào khớp bộ lọc.'));
+  }
+
+  private listOf(t: Tab): Species[] {
+    if (t === 'all') return SPECIES;
+    if (t === 'protect') return PROTECTED_SPECIES;
+    return SPECIES.filter((s) => s.region === t);
   }
 
   private card(sp: Species, i: number) {
@@ -103,10 +122,16 @@ export class Journal {
         onkeydown: (e: Event) => (e as KeyboardEvent).key === 'Enter' && open(),
       },
       h('span', { class: 'rdot', style: `background:${RARITY_INFO[sp.rarity].color};box-shadow:0 0 8px ${RARITY_INFO[sp.rarity].color}` }),
+      sp.redBookVN ? h('span', { class: 'rb-mark', title: 'Sách Đỏ Việt Nam', style: `color:${REDBOOK_COLOR}`, html: BOOK_ICON }) : null,
       h('div', { class: 'thumb' }, img),
       known
         ? [h('div', { class: 'nm' }, sp.nameVi), h('div', { class: 'sci', style: 'font-size:16px' }, sp.nameSci), stars(rec?.bestStars ?? 0)]
-        : [h('div', { class: 'nm' }, '???'), h('div', { class: 'hint' }, `${REGION_LABEL[sp.region]} · Tầng ${sp.tier}`), h('div', { class: 'hint' }, BEHAVIOR_HINT[sp.behavior])],
+        : [
+            h('div', { class: 'nm' }, '???'),
+            h('div', { class: 'hint' }, `${REGION_LABEL[sp.region]} · Tầng ${sp.tier}`),
+            h('div', { class: 'hint eco' }, `${ECOSYSTEM_ICON[sp.ecosystem]} Sống ở: ${ECOSYSTEM_BY_ID.get(sp.ecosystem)?.name ?? ''}`),
+            h('div', { class: 'hint' }, BEHAVIOR_HINT[sp.behavior]),
+          ],
     );
   }
 
@@ -120,7 +145,8 @@ export class Journal {
       { class: 'badge', style: `color:${iu.color}`, title: 'Bấm để xem giải thích', onclick: () => (iucnText.style.display = iucnText.style.display === 'none' ? '' : 'none') },
       `IUCN: ${iu.name} ⓘ`,
     );
-    const cons = ['VU', 'EN', 'CR'].includes(sp.iucn);
+    const redText = h('div', { class: 'box-redbook', style: 'display:none' }, h('b', {}, 'Sách Đỏ Việt Nam là gì? '), REDBOOK_INFO);
+    const cons = isProtected(sp);
     const close = () => d.remove();
     const d: HTMLElement = h(
       'div',
@@ -141,8 +167,24 @@ export class Journal {
           'div',
           { class: 'right scroll' },
           h('div', { style: 'display:flex;gap:10px;align-items:flex-start' }, h('div', { style: 'flex:1' }, h('h2', {}, sp.nameVi), h('div', { class: 'sci', style: 'font-size:18px' }, sp.nameSci), h('div', { style: 'color:#a9c9d6' }, sp.nameEn)), h('button', { class: 'btn icon', title: 'Đóng', onclick: close }, '✕')),
-          h('div', { class: 'badges', style: 'justify-content:flex-start' }, rarityBadge(sp), dangerBadge(sp), iucnBadge),
+          h(
+            'div',
+            { class: 'badges', style: 'justify-content:flex-start' },
+            rarityBadge(sp),
+            dangerBadge(sp),
+            iucnBadge,
+            sp.redBookVN ? redBookBadge(() => (redText.style.display = redText.style.display === 'none' ? '' : 'none')) : null,
+          ),
           iucnText,
+          redText,
+          h('div', { class: 'id-box' }, h('h4', {}, '🔎 Nhận dạng'), h('p', {}, sp.appearance)),
+          h(
+            'div',
+            { class: 'eco-box' },
+            h('h4', {}, '🌏 Vai trò trong hệ sinh thái Biển Đông'),
+            ecoChip(sp.ecosystem, () => ecoPopup(this.root, sp.ecosystem)),
+            h('p', {}, sp.ecoRole),
+          ),
           h(
             'div',
             { class: 'facts' },
@@ -156,7 +198,7 @@ export class Journal {
           h('div', {}, h('h4', {}, 'Mô tả'), h('p', {}, sp.description)),
           h('div', {}, h('h4', {}, '💡 Bạn có biết?'), h('p', {}, sp.funFact)),
           sp.dangerNote ? h('div', { class: 'box-warn' }, h('h4', { style: 'color:#ff8f8f' }, '⚠ Vì sao nguy hiểm?'), h('p', {}, sp.dangerNote)) : null,
-          cons ? h('div', { class: 'box-cons' }, h('h4', {}, '🛡️ Thông điệp bảo tồn'), h('p', {}, sp.conservation ?? 'Loài đang bị đe dọa. Hãy nói không với sản phẩm từ loài này và bảo vệ nơi sống của chúng.')) : null,
+          cons ? h('div', { class: 'box-cons' }, h('h4', {}, '🛡️ Thông điệp bảo tồn'), h('p', {}, sp.conservation ?? CONSERVATION_FALLBACK)) : null,
           sp.needsVerification ? h('div', { class: 'verify' }, '✎ Một số thông tin của loài này đang được nhóm kiểm chứng thêm.') : null,
         ),
       ),

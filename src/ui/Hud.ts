@@ -1,7 +1,7 @@
 /** HUD khi lặn: oxy, độ sâu, áp suất, điểm, minimap, khung ngắm, cảnh báo, kết quả ảnh. */
 import { bus, type HudState, type PhotoResult } from '../game/bus';
 import { Input } from '../game/input';
-import { SPECIES_BY_ID, RARITY_INFO, DANGER_INFO, type Species } from '../data/types';
+import { SPECIES_BY_ID, RARITY_INFO, DANGER_INFO, REDBOOK_COLOR, CONSERVATION_FALLBACK, isProtected, type Species } from '../data/types';
 import { Save } from '../systems/Save';
 import { h, artUrl, stars, fmt } from './dom';
 import { touchLayer } from './controls';
@@ -24,6 +24,16 @@ export function toast(root: HTMLElement, text: string, kind = 'info') {
 export function rarityBadge(sp: Species) {
   const r = RARITY_INFO[sp.rarity];
   return h('span', { class: `badge r-${sp.rarity}`, style: `color:${r.color}` }, r.name);
+}
+/** Biểu tượng cuốn sách (đỏ son) cho huy hiệu Sách Đỏ Việt Nam */
+export const BOOK_ICON =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4.5C4 3.7 4.7 3 5.5 3H19v15H6a2 2 0 0 0-2 2z" fill="currentColor"/><path d="M4 20a2 2 0 0 0 2 2h13v-4H6a2 2 0 0 0-2 2z" fill="currentColor" opacity=".55"/><path d="M8 7h8M8 10h6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
+/** Huy hiệu Sách Đỏ Việt Nam; onClick (nếu có) để hiện giải thích */
+export function redBookBadge(onClick?: () => void) {
+  const attrs = { class: 'badge redbook', style: `color:${REDBOOK_COLOR}`, title: onClick ? 'Bấm để xem Sách Đỏ Việt Nam là gì' : 'Sách Đỏ Việt Nam', onclick: onClick };
+  const b = onClick ? h('button', attrs) : h('span', attrs);
+  b.innerHTML = BOOK_ICON + `<span>Sách Đỏ Việt Nam${onClick ? ' ⓘ' : ''}</span>`;
+  return b;
 }
 export function dangerBadge(sp: Species) {
   const d = DANGER_INFO[sp.danger];
@@ -228,7 +238,7 @@ export class Hud {
     this.popT = window.setTimeout(() => pop.remove(), 3200);
     if (sp && r.isNew) {
       const delay = sp.rarity === 'huyen_thoai' ? 1700 : 500;
-      setTimeout(() => this.enqueue(() => this.discover(sp)), delay);
+      setTimeout(() => this.enqueue(() => (isProtected(sp) ? this.discoverProtected(sp, r.photo) : this.discover(sp))), delay);
     }
   }
 
@@ -268,6 +278,39 @@ export class Hud {
               },
             }, '📖 Xem trong Sổ tay'),
           ),
+        ),
+      ),
+    );
+    this.root.appendChild(wrap);
+  }
+
+  /** Thẻ đặc biệt viền đỏ son khi ghi nhận lần đầu một loài "Cần bảo vệ". */
+  private discoverProtected(sp: Species, photo?: string | null) {
+    this.modalOpen = true;
+    Input.paused = true;
+    Input.aim = false;
+    const legend = sp.rarity === 'huyen_thoai';
+    const close = () => {
+      wrap.remove();
+      this.closeModal();
+    };
+    const wrap = h(
+      'div',
+      { class: `discover protect${legend ? ' legend' : ''}` },
+      h(
+        'div',
+        { class: 'card3d' },
+        h(
+          'div',
+          { class: 'dcard pcard glass' },
+          h('div', { class: 'new-tag' }, 'LOÀI CẦN ĐƯỢC BẢO VỆ'),
+          h('div', { class: 'p-photo' }, h('img', { src: photo || artUrl(sp.id), alt: photo ? `Ảnh bạn vừa chụp ${sp.nameVi}` : sp.nameVi })),
+          h('h3', {}, sp.nameVi),
+          h('div', { class: 'sci' }, sp.nameSci),
+          h('div', { class: 'badges', style: 'margin:10px 0' }, rarityBadge(sp), sp.redBookVN ? redBookBadge() : null),
+          h('div', { class: 'p-sec' }, h('h4', {}, '🌏 Vai trò trong hệ sinh thái'), h('p', {}, sp.ecoRole)),
+          h('div', { class: 'p-sec cons' }, h('h4', {}, '🛡️ Thông điệp bảo tồn'), h('p', {}, sp.conservation ?? CONSERVATION_FALLBACK)),
+          h('div', { class: 'p-actions' }, h('button', { class: 'btn primary pledge', onclick: close }, '🤝 Tôi sẽ bảo vệ loài này')),
         ),
       ),
     );

@@ -1,10 +1,12 @@
 import speciesJson from './species.json';
+import ecosystemsJson from './ecosystems.json';
 
 export type RegionId = 'bac_bo' | 'mien_trung' | 'mien_nam' | 'khoi_xa';
 export type Tier = 1 | 2 | 3;
 export type Rarity = 'thuong_gap' | 'it_gap' | 'hiem' | 'huyen_thoai';
 export type Danger = 'an_toan' | 'can_than' | 'nguy_hiem' | 'cuc_ky_nguy_hiem';
 export type Iucn = 'LC' | 'NT' | 'VU' | 'EN' | 'CR' | 'NE';
+export type EcosystemId = 'ran_san_ho' | 'co_bien' | 'bien_khoi' | 'bien_sau';
 export type Behavior =
   | 'static'
   | 'buried'
@@ -35,10 +37,37 @@ export interface Species {
   dangerNote?: string | null;
   conservation?: string | null;
   needsVerification?: boolean;
+  /** Mô tả nhận dạng cho người chơi (chỉ hiện khi đã ghi nhận) */
+  appearance: string;
+  /** Vai trò trong hệ sinh thái Biển Đông */
+  ecoRole: string;
+  ecosystem: EcosystemId;
+  /** Có trong Sách Đỏ Việt Nam (đội dự án cần kiểm chứng) */
+  redBookVN: boolean;
 }
 
 export const SPECIES: Species[] = speciesJson as Species[];
 export const SPECIES_BY_ID = new Map(SPECIES.map((s) => [s.id, s]));
+
+export interface Ecosystem {
+  id: EcosystemId;
+  name: string;
+  summary: string;
+  threats: string;
+}
+export const ECOSYSTEMS: Ecosystem[] = ecosystemsJson as Ecosystem[];
+export const ECOSYSTEM_BY_ID = new Map(ECOSYSTEMS.map((e) => [e.id, e]));
+export const ECOSYSTEM_ICON: Record<EcosystemId, string> = { ran_san_ho: '🪸', co_bien: '🌿', bien_khoi: '🌊', bien_sau: '🌑' };
+
+/** Loài "Cần bảo vệ": IUCN VU/EN/CR hoặc có trong Sách Đỏ Việt Nam. */
+export const isProtected = (s: Species) => s.redBookVN || s.iucn === 'VU' || s.iucn === 'EN' || s.iucn === 'CR';
+export const PROTECTED_SPECIES: Species[] = SPECIES.filter(isProtected);
+
+/** Màu đỏ son của huy hiệu Sách Đỏ */
+export const REDBOOK_COLOR = '#E8452C';
+export const REDBOOK_INFO =
+  'Sách Đỏ Việt Nam là danh sách các loài động vật, thực vật quý hiếm đang bị đe dọa ở Việt Nam, do các nhà khoa học trong nước biên soạn (bản gần nhất xuất bản năm 2007). Loài có tên trong Sách Đỏ cần được ưu tiên bảo vệ; nhiều loài bị cấm săn bắt, mua bán.';
+export const CONSERVATION_FALLBACK = 'Loài đang bị đe dọa. Hãy nói không với sản phẩm từ loài này và bảo vệ nơi sống của chúng.';
 
 export const REGIONS: { id: RegionId; name: string; short: string; tiers: Tier[]; mood: string; blurb: string }[] = [
   { id: 'bac_bo', name: 'Vịnh Bắc Bộ', short: 'Bắc Bộ', tiers: [1, 2], mood: 'Huyền ảo, hơi sương', blurb: 'Chân núi đá vôi Hạ Long nhô xuống nước, hang đá, đáy bùn cát và bãi sá sùng.' },

@@ -1,0 +1,6 @@
+[
+  {"id": "ran_san_ho", "name": "Rạn san hô", "summary": "Chiếm diện tích rất nhỏ của Biển Đông nhưng là nơi sinh sống, kiếm ăn và sinh sản của rất nhiều loài sinh vật biển. Rạn san hô còn che chắn bờ biển trước sóng bão.", "threats": "Nước biển nóng lên gây tẩy trắng san hô, đánh bắt bằng thuốc nổ và hóa chất, sao biển gai bùng phát, rác thải và du lịch thiếu ý thức."},
+  {"id": "co_bien", "name": "Thảm cỏ biển", "summary": "Đồng cỏ dưới nước ở vùng nông, là bãi ăn của bò biển và rùa xanh, nơi ương nuôi cá con và cá ngựa. Cỏ biển còn giữ đáy cát và hấp thụ nhiều khí CO₂.", "threats": "Nạo vét, lấn biển, nuôi trồng, nước thải làm đục nước khiến cỏ biển không quang hợp được."},
+  {"id": "bien_khoi", "name": "Biển khơi", "summary": "Vùng nước rộng ngoài xa bờ, nơi các đàn cá lớn và những loài di cư khổng lồ như cá nhám voi, đuối manta, cá mập đầu búa sinh sống.", "threats": "Khai thác quá mức, cắt vây cá mập, mắc lưới, rác nhựa trôi nổi."},
+  {"id": "bien_sau", "name": "Biển sâu", "summary": "Vùng tối đen dưới 200m. Sinh vật ở đây sống nhờ thức ăn chìm xuống từ phía trên và tự phát sáng. Đây là phần ít được biết đến nhất của Biển Đông.", "threats": "Lưới kéo đáy, rác thải chìm xuống đáy, khai thác đáy biển trong tương lai."}
+]
