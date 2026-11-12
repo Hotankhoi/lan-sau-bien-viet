@@ -14,6 +14,10 @@ export const Flow = {
   get params(): DiveParams | null {
     return current;
   },
+  /** cảnh lặn đang chạy (dùng cho công cụ kiểm thử) */
+  scene<T = Phaser.Scene>(): T | null {
+    return (game?.scene.getScene('Dive') as T) ?? null;
+  },
   run(p: DiveParams) {
     if (!game) return;
     current = p;

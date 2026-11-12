@@ -265,6 +265,36 @@ export class App {
     Flow.dive(region, tier);
   }
 
+  /** Các thao tác cho bảng công cụ kiểm thử (chỉ dùng khi ?test=1) */
+  testApi() {
+    const leave = () => {
+      if (this.journal) this.journal.close();
+      this.pauseEl?.remove();
+      this.pauseEl = null;
+      Input.paused = false;
+      this.classMode = false;
+    };
+    return {
+      root: this.root,
+      isDiving: () => this.screen === 'dive',
+      dive: (region: RegionId, tier: Tier) => {
+        leave();
+        this.selRegion = region;
+        this.dive(region, tier);
+      },
+      title: () => {
+        leave();
+        this.title();
+      },
+      /** vẽ lại màn hiện tại sau khi đổi bộ lưu (chỉ màn tiêu đề/bản đồ) */
+      refresh: () => {
+        if (!this.view) return; // màn tiêu đề chưa dựng: lúc dựng sẽ đọc bộ lưu mới
+        if (this.screen === 'title') this.title();
+        else if (this.screen === 'map') this.map();
+      },
+    };
+  }
+
   // ---------- Chế độ lớp học ----------
   classroom() {
     this.classMode = false;

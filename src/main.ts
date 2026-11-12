@@ -6,6 +6,7 @@ import { View } from './game/view';
 import { Flow } from './game/flow';
 import { App } from './ui/App';
 import { bus } from './game/bus';
+import { TEST_MODE } from './systems/testFlag';
 
 function boot() {
   const dpr = View.dpr;
@@ -30,6 +31,8 @@ function boot() {
   });
   const app = new App(document.getElementById('ui')!);
   game.events.once('ready', () => app.title());
+  // chế độ kiểm thử (?test=1): tải riêng, người chơi bình thường không tải phần này
+  if (TEST_MODE) import('./ui/TestTools').then((m) => m.installTestTools(app.testApi()));
   (window as unknown as { __game: Phaser.Game }).__game = game;
   // chỉ khi chạy dev: cho công cụ chơi thử tự động phát sự kiện giả
   if (import.meta.env.DEV) (window as unknown as { __bus: typeof bus }).__bus = bus;

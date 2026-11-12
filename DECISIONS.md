@@ -42,3 +42,10 @@
 - **Ảnh nhỏ trong màn "Biển Đông cần chúng"**: dựng 46 hình SVG đầy đủ trên máy người chơi mất 12–19 giây (máy yếu còn lâu hơn), nên vẽ sẵn thành WebP 200 px lúc phát triển (`npm run art:thumbs`, tổng 268 KB, lưu ở `public/thumbs/`). Nếu thiếu file thì tự dựng tạm bản SVG nhỏ. `npm run validate:data` cảnh báo khi loài thiếu ảnh nhỏ. **Sửa hình loài nào thì chạy lại `npm run art:thumbs -- <id>`.**
 - Màn "Biển Đông cần chúng" nằm trên Sổ tay; Esc đóng lần lượt: bảng hệ sinh thái → thẻ chi tiết → màn Biển Đông → Sổ tay. Bấm ô loài đã gặp mở thẻ chi tiết; ô chưa gặp không bấm được (không lộ thông tin).
 - Màn này dùng nền gần đục, bỏ làm mờ phía sau (backdrop blur) để không phải vẽ chồng hai lớp mờ toàn màn hình.
+
+## 2026-11-12 – Chế độ kiểm thử (?test=1)
+- Bật bằng `?test=1`; cờ đọc một lần lúc tải trang (`src/systems/testFlag.ts`). Bộ lưu dùng khóa `lan-sau-save-v1_test`, nên tiến trình thật không bao giờ bị đọc hay ghi; tùy chọn "Oxy vô hạn" lưu ở khóa riêng `lan-sau-test-opts`.
+- Phần giao diện kiểm thử (`src/ui/TestTools.ts`) tải riêng bằng `import()` chỉ khi bật chế độ này, người chơi bình thường không tải.
+- Ảnh 3★ của 46 loài dựng ngay trong trình duyệt (hình SVG game + nền nước của vùng/tầng, JPEG 300×210 như ảnh chụp thật), chạy nền từng ảnh một, tổng ~360 KB trong bộ lưu kiểm thử.
+- Nút "Gọi loài Huyền thoại" ưu tiên loài huyền thoại không thuộc nhóm cần bảo vệ (hiện chỉ có cá mập sáu mang), vì loài vừa huyền thoại vừa cần bảo vệ sẽ hiện thẻ viền đỏ son thay cho thẻ vàng. Loài được gọi bị xóa khỏi Sổ tay kiểm thử để chụp lại sẽ hiện thẻ ghi nhận.
+- "Nhảy nhanh" vào thẳng vùng/tầng, bỏ qua điều kiện mở khóa; còn bản đồ vẫn dùng luật mở khóa thường, để sau khi "Đặt lại: chưa có gì" thử được đúng luồng người chơi mới.

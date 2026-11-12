@@ -22,6 +22,7 @@ import { bus, type DiveSummary, type HudState, type PhotoResult } from '../game/
 import { Input } from '../game/input';
 import { View } from '../game/view';
 import { rng } from '../art/style-bible';
+import { TEST_MODE, TestOpts } from '../systems/testFlag';
 
 export interface DiveParams {
   region: RegionId;
@@ -399,6 +400,34 @@ export class DiveScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Chế độ kiểm thử: gọi một con của loài bất kỳ xuất hiện ngay trước mặt thợ lặn.
+   * Trả về false nếu chưa vào lượt lặn.
+   */
+  async spawnTest(id: string): Promise<boolean> {
+    const sp = SPECIES_BY_ID.get(id);
+    if (!TEST_MODE || !sp || !this.ready || !this.diver || this.ended) return false;
+    const art = getArt(sp.id);
+    const built = await buildCreature(this, art, displayLengthFor(sp.sizeCm, art));
+    if (!this.diver || this.ended) return false;
+    const f = this.diver.facing;
+    const view = new CreatureView(this, 0, 0, built);
+    const dist = 240 + Math.min(320, view.halfW);
+    const x = Phaser.Math.Clamp(this.dx + f * dist, 200, this.world.W - 200);
+    const ground = this.world.groundY(x);
+    const onBottom = sp.behavior === 'static' || sp.behavior === 'camouflage' || sp.behavior === 'buried';
+    const y = onBottom ? ground - 10 : Phaser.Math.Clamp(this.dy, 160, ground - 110);
+    view.setPosition(x, y);
+    view.setDepth(16);
+    const c = new Creature(sp, view, x, y);
+    c.hidden = 0; // không vùi/ẩn để xem rõ ngay
+    const hab = CONFIG.habitat[sp.id];
+    if (hab) c.roamY = Math.max(30, hab * 0.5);
+    view.face(-f as 1 | -1, true);
+    this.creatures.push(c);
+    return true;
+  }
+
   private async spawnTrash(seed: number) {
     const r = rng(seed + 5);
     const n = this.params.tier === 3 ? 4 : CONFIG.spawn.trashPerDive;
@@ -699,6 +728,7 @@ export class DiveScene extends Phaser.Scene {
     // ---- oxy ----
     const mul = (sprint ? CONFIG.oxygen.sprintMul * (1 - finsLv * 0.12) : 1) * CONFIG.oxygen.tierMul[this.params.tier];
     this.oxygen -= (dt * mul) / this.oxygenMax;
+    if (TEST_MODE && TestOpts.infiniteO2) this.oxygen = 1;
     if (this.oxygen < CONFIG.oxygen.lowThreshold) {
       this.lowO2Beep -= dt;
       if (this.lowO2Beep <= 0) {

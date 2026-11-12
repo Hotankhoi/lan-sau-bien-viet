@@ -3,8 +3,11 @@
  * game vẫn chạy bình thường, chỉ không lưu.
  */
 import type { RegionId, Tier } from '../data/types';
+import { TEST_MODE } from './testFlag';
 
-const KEY = 'lan-sau-save-v1';
+/** Chế độ kiểm thử (?test=1) dùng khóa riêng – tiến trình thật không bị đọc hay ghi đè. */
+export const SAVE_KEY_REAL = 'lan-sau-save-v1';
+const KEY = TEST_MODE ? SAVE_KEY_REAL + '_test' : SAVE_KEY_REAL;
 
 export interface SpeciesRecord {
   count: number;
@@ -60,6 +63,8 @@ export function defaultSave(): SaveData {
 }
 
 let storageOk = true;
+/** đã có dữ liệu lưu từ trước (false = lần đầu mở) */
+let hadStored = false;
 let data: SaveData = load();
 const listeners = new Set<() => void>();
 
@@ -67,6 +72,7 @@ function load(): SaveData {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return defaultSave();
+    hadStored = true;
     const parsed = JSON.parse(raw);
     const base = defaultSave();
     return {
@@ -90,6 +96,15 @@ export const Save = {
   },
   get available(): boolean {
     return storageOk;
+  },
+  /** true nếu lúc mở game đã có dữ liệu lưu */
+  get hadStored(): boolean {
+    return hadStored;
+  },
+  /** Thay toàn bộ dữ liệu (chỉ dùng cho chế độ kiểm thử) */
+  replace(d: SaveData): void {
+    data = d;
+    Save.persist();
   },
   persist(): void {
     try {

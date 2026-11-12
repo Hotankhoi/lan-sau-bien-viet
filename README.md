@@ -51,6 +51,31 @@ Repo đã có sẵn `.github/workflows/deploy.yml`: mỗi lần push lên nhánh
 2. **Kiểm chứng dữ liệu khoa học** các loài có `"needsVerification": true` trong `src/data/species.json` (chạy `npm run validate:data` để xem danh sách).
 3. **Chơi thử** trên laptop và máy tính bảng, ghi lại góp ý.
 
+### Chế độ kiểm thử (dành cho đội dự án)
+
+Để thử toàn bộ game mà không phải chơi lại từ đầu, thêm `?test=1` vào cuối địa chỉ:
+
+- Trên máy: `http://localhost:5173/lan-sau-bien-viet/?test=1`
+- Trên mạng: `https://hotankhoi.github.io/lan-sau-bien-viet/?test=1`
+
+Khi bật, góc trên màn hình có dải cam **CHẾ ĐỘ KIỂM THỬ**. Lần đầu mở, game tự tạo một bộ lưu kiểm thử **"đã có tất cả"**:
+- đủ 4 vùng biển và cả 3 tầng (kể cả Tầng 3), mọi nâng cấp ở cấp tối đa;
+- đủ 46 loài trong Sổ tay, mỗi loài có ảnh 3★ (ảnh được vẽ từ hình của loài trên nền nước của vùng đó; dải cam hiện "đang tạo ảnh x/46" trong khoảng nửa phút đầu);
+- mở khóa mọi thành tựu, 99.999 điểm Nghiên cứu, 9.999 Điểm Xanh; Chế độ lớp học dùng được với mọi vùng.
+
+**Bảng công cụ**: bấm phím **F9** (hoặc nút 🧰 trên dải cam khi dùng màn hình cảm ứng):
+
+| Công cụ | Tác dụng |
+|---|---|
+| Nhảy nhanh | Vào ngay một vùng/tầng bất kỳ |
+| Oxy vô hạn | Bật/tắt; oxy luôn đầy để thoải mái xem |
+| Chọn loài → Gọi ra | Loài đó xuất hiện ngay trước mặt thợ lặn. Nếu chưa lặn, game lặn xuống đúng vùng/tầng của loài |
+| ★ Gọi loài Huyền thoại / 📕 Gọi loài Sách Đỏ | Gọi một loài và xóa nó khỏi Sổ tay kiểm thử; chụp nó để xem thẻ ghi nhận đặc biệt (thẻ vàng Huyền thoại, thẻ viền đỏ son "Loài cần được bảo vệ") |
+| Đặt lại: chưa có gì | Về trạng thái người chơi mới (có cả hướng dẫn lượt đầu) để thử luồng chơi từ đầu |
+| Đặt lại: đã có tất cả | Quay về bộ lưu đầy đủ như trên |
+
+**An toàn cho tiến trình thật:** chế độ kiểm thử dùng bộ lưu riêng (khóa `lan-sau-save-v1_test` trong trình duyệt), không đọc và không ghi đè tiến trình thật. Mọi điểm, thành tựu, thống kê khi kiểm thử chỉ nằm trong bộ lưu kiểm thử. Mở lại địa chỉ không có `?test=1` là về đúng tiến trình của bạn, không còn dải cam. Bài chạy thử tự động: `npx tsx tools/playtest-testmode.ts` (cần `npm run dev` đang chạy).
+
 ## Công cụ cho nhà phát triển
 
 | Lệnh | Tác dụng |
@@ -61,6 +86,8 @@ Repo đã có sẵn `.github/workflows/deploy.yml`: mỗi lần push lên nhánh
 | `npx tsx tools/env-preview.ts <vùng>` | Xem thử môi trường một vùng → `preview/env/<vùng>.png` |
 | `npx tsx tools/check-art.ts` | Tìm lỗi NaN trong hình SVG |
 | `npx tsx tools/playtest.ts [all\|ui\|dive]` | Chơi thử tự động (cần `npm run dev` đang chạy; đặt `URL=` để chọn địa chỉ khác) → `preview/screens/` |
+| `npm run art:thumbs [-- <id>]` | Vẽ lại ảnh nhỏ của loài cho màn "Biển Đông cần chúng" → `public/thumbs/` (chạy sau khi sửa hình một loài) |
+| `npx tsx tools/playtest-testmode.ts` | Chạy thử tự động Chế độ kiểm thử và kiểm tra tiến trình thật không bị đụng tới |
 | `npm run refs -- <id>` | Tải ảnh tham khảo từ Wikimedia Commons (chỉ để nhìn khi vẽ, không đưa vào game; thư mục `references/` không được commit) |
 
 Cấu trúc mã: `src/art` (hình vẽ sinh vật/môi trường), `src/scenes` (cảnh lặn Phaser), `src/systems` (thế giới, hành vi, lưu trữ, âm thanh, thành tựu), `src/ui` (giao diện DOM), `src/shaders` (hiệu ứng nước), `src/data` (dữ liệu loài).
