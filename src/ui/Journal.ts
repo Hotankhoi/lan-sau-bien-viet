@@ -6,6 +6,8 @@ import { Sound } from '../systems/Audio';
 import { h, clear, artUrl, stars } from './dom';
 import { rarityBadge, dangerBadge, redBookBadge, BOOK_ICON } from './Hud';
 import { ecoChip, ecoPopup } from './Ecosystem';
+import { SeaNeeds } from './SeaNeeds';
+import type { EcosystemId } from '../data/types';
 
 type Tab = RegionId | 'all' | 'protect';
 
@@ -16,6 +18,7 @@ export class Journal {
   private tabsEl: HTMLElement;
   private tab: Tab = 'all';
   private banner: HTMLElement = h('div');
+  private sea: SeaNeeds | null = null;
   private f = { tier: '', rarity: '', danger: '', iucn: '' };
 
   constructor(
@@ -41,7 +44,7 @@ export class Journal {
     this.el = h(
       'div',
       { class: 'screen dim solid' },
-      h('div', { class: 'topbar' }, h('button', { class: 'btn icon', title: 'Đóng', onclick: () => this.close() }, '✕'), h('h2', {}, '📖 Sổ tay Biển Việt'), h('div', { class: 'spacer' }), this.progress),
+      h('div', { class: 'topbar' }, h('button', { class: 'btn icon', title: 'Đóng', onclick: () => this.close() }, '✕'), h('h2', {}, '📖 Sổ tay Biển Việt'), h('button', { class: 'btn sea-btn', onclick: () => (Sound.ui(), this.openSea()) }, '🌏 Biển Đông cần chúng'), h('div', { class: 'spacer' }), this.progress),
       h('div', { class: 'journal' }, this.tabsEl, filters, h('div', { class: 'grid-wrap scroll' }, this.grid)),
     );
     root.appendChild(this.el);
@@ -58,7 +61,38 @@ export class Journal {
     this.el.remove();
     this.root.querySelector('.detail')?.remove();
     this.root.querySelector('.eco-pop')?.remove();
+    this.sea?.close();
     this.onClose();
+  }
+
+  /** Esc: đóng lớp trên cùng (bảng hệ sinh thái → thẻ chi tiết → màn Biển Đông). Trả về false nếu không còn lớp nào. */
+  back(): boolean {
+    for (const sel of ['.eco-pop', '.detail']) {
+      const n = this.root.querySelector(sel);
+      if (n) {
+        n.remove();
+        return true;
+      }
+    }
+    if (this.sea) {
+      this.sea.close();
+      this.sea = null;
+      return true;
+    }
+    return false;
+  }
+
+  /** Mở màn "Biển Đông cần chúng" (có thể cuộn tới một hệ sinh thái) */
+  openSea(focus?: EcosystemId) {
+    this.root.querySelector('.eco-pop')?.remove();
+    this.root.querySelector('.detail')?.remove();
+    this.sea?.close();
+    this.sea = new SeaNeeds(this.root, (sp) => this.detail(sp), focus);
+    const close = this.sea.close.bind(this.sea);
+    this.sea.close = () => {
+      close();
+      this.sea = null;
+    };
   }
 
   private render() {
@@ -182,7 +216,7 @@ export class Journal {
             'div',
             { class: 'eco-box' },
             h('h4', {}, '🌏 Vai trò trong hệ sinh thái Biển Đông'),
-            ecoChip(sp.ecosystem, () => ecoPopup(this.root, sp.ecosystem)),
+            ecoChip(sp.ecosystem, () => ecoPopup(this.root, sp.ecosystem, { label: '🌏 Xem các loài của hệ này', run: () => this.openSea(sp.ecosystem) })),
             h('p', {}, sp.ecoRole),
           ),
           h(

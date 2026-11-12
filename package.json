@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "art:preview": "tsx tools/art-preview.ts",
+    "art:thumbs": "tsx tools/make-thumbs.ts",
     "validate:data": "tsx tools/validate-data.ts",
     "refs": "tsx tools/fetch-refs.ts"
   },

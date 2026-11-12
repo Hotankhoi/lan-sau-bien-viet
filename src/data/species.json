@@ -461,5 +461,38 @@
     "funFact": "Hầu hết cá mập có 5 khe mang. Dòng họ cá mập sáu mang đã tồn tại từ thời khủng long.",
     "ecoRole": "Là kẻ săn mồi lớn nhất vùng biển sâu, ăn cả xác cá voi chìm xuống, giữ chuỗi thức ăn biển sâu cân bằng.",
     "dangerNote": "Không hung dữ với người, nhưng kích thước lớn: luôn giữ khoảng cách."
+  },
+  {
+    "id": "rua_da", "nameVi": "Rùa da", "nameSci": "Dermochelys coriacea", "nameEn": "Leatherback sea turtle",
+    "region": "khoi_xa", "tier": 2, "rarity": "huyen_thoai", "danger": "an_toan", "iucn": "VU",
+    "sizeCm": 200, "behavior": "wander", "needsVerification": true, "ecosystem": "bien_khoi", "redBookVN": true,
+    "visual": "Rùa biển lớn nhất thế giới. Không có mai cứng: lưng phủ lớp da dày màu đen xanh lấm tấm đốm trắng, có 7 gờ chạy dọc lưng như vỏ quả. Chân chèo trước cực dài. Đầu to, mỏ có hai mấu nhọn.",
+    "appearance": "Rùa biển lớn nhất thế giới, lưng không có mai cứng mà là lớp da dày đen xanh lấm tấm đốm trắng, có 7 gờ chạy dọc như vỏ quả. Chân chèo trước rất dài.",
+    "description": "Loài rùa bơi xa nhất đại dương, có thể lặn sâu hàng trăm mét để săn sứa. Ở Việt Nam chỉ còn rất hiếm ghi nhận.",
+    "funFact": "Rùa da đã tồn tại từ thời khủng long và có thể vượt hàng nghìn km mỗi năm.",
+    "ecoRole": "Chuyên ăn sứa, giúp sứa không bùng phát. Khi sứa quá nhiều, chúng ăn hết cá con và trứng cá, làm suy giảm nghề cá.",
+    "conservation": "Rùa da nuốt nhầm túi nilon vì tưởng là sứa. Mỗi chiếc túi nhựa vứt xuống biển có thể là một con rùa chết."
+  },
+  {
+    "id": "oc_anh_vu", "nameVi": "Ốc anh vũ", "nameSci": "Nautilus pompilius", "nameEn": "Chambered nautilus",
+    "region": "khoi_xa", "tier": 3, "rarity": "hiem", "danger": "an_toan", "iucn": "NE",
+    "sizeCm": 20, "behavior": "drift", "needsVerification": true, "ecosystem": "bien_sau", "redBookVN": true,
+    "visual": "Vỏ xoắn ốc tròn trơn láng, nền trắng kem với các sọc lửa màu nâu cam tỏa từ tâm ra mép; phần quanh miệng vỏ có lớp xà cừ ánh bạc. Từ miệng vỏ thò ra vài chục xúc tu ngắn và một đôi mắt đơn giản. Bơi bằng phản lực, nhấp nhô chậm rãi.",
+    "appearance": "Vỏ xoắn ốc tròn trơn láng, nền trắng kem với các sọc lửa nâu cam tỏa từ tâm. Từ miệng vỏ thò ra vài chục xúc tu ngắn.",
+    "description": "Họ hàng của mực và bạch tuộc nhưng vẫn giữ vỏ ngoài. Ban ngày sống ở vùng sâu, ban đêm bơi lên cao hơn để kiếm ăn.",
+    "funFact": "Ốc anh vũ được gọi là 'hóa thạch sống': hình dáng gần như không đổi suốt hàng trăm triệu năm. Bên trong vỏ chia thành nhiều ngăn chứa khí để nổi chìm.",
+    "ecoRole": "Ăn xác động vật và giáp xác ở sườn rạn sâu, góp phần dọn dẹp đáy biển.",
+    "conservation": "Bị khai thác lấy vỏ làm đồ trang trí. Lớn chậm, sinh sản ít nên rất dễ biến mất nếu bị bắt nhiều."
+  },
+  {
+    "id": "hai_sam_vu", "nameVi": "Hải sâm vú", "nameSci": "Holothuria whitmaei", "nameEn": "Black teatfish",
+    "region": "mien_trung", "tier": 1, "rarity": "hiem", "danger": "an_toan", "iucn": "EN",
+    "sizeCm": 50, "behavior": "static", "needsVerification": true, "ecosystem": "ran_san_ho", "redBookVN": true,
+    "visual": "Hải sâm to, thân chắc hình trụ hơi dẹt, màu đen tuyền có thể loang trắng ở bụng. Hai bên hông có các núm lồi to như núm vú. Bề mặt mịn như nhung, thường phủ chút cát trắng.",
+    "appearance": "Hải sâm to màu đen tuyền, hai bên hông có các núm lồi to đặc trưng. Bề mặt mịn như nhung.",
+    "description": "Sống trên nền cát giữa các rạn san hô nông. Từng rất phổ biến nhưng nay đã hiếm vì bị khai thác.",
+    "funFact": "Một con hải sâm có thể lọc hàng chục kg cát mỗi năm.",
+    "ecoRole": "Là 'máy lọc cát' của rạn: làm sạch đáy, trả lại dinh dưỡng và làm giảm độ chua của nước quanh san hô.",
+    "conservation": "Bị khai thác quá mức làm thực phẩm đắt tiền. Rạn mất hải sâm thì đáy cát dễ bị ô nhiễm và san hô yếu đi."
   }
 ]

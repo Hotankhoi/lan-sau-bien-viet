@@ -104,7 +104,7 @@ export class App {
       return;
     }
     if (this.journal) {
-      this.journal.close();
+      if (!this.journal.back()) this.journal.close();
       return;
     }
     if (this.screen === 'dive') this.togglePause();

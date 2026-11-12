@@ -17,7 +17,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const errors: string[] = [];
 const problems: string[] = [];
 
-const SEED = ['ca_khoang_co', 'ca_buom_chi', 'ca_mao_tien', 'ca_ngua_den', 'trai_tai_tuong', 'ca_napoleon', 'rua_doi_moi', 'sam_bien', 'hai_sam_den'];
+const SEED = ['ca_khoang_co', 'ca_buom_chi', 'ca_mao_tien', 'ca_ngua_den', 'trai_tai_tuong', 'ca_napoleon', 'rua_doi_moi', 'sam_bien', 'hai_sam_den', 'rua_da', 'hai_sam_vu', 'oc_anh_vu'];
 
 async function shot(page: Page, name: string) {
   await page.screenshot({ path: join(OUT, `${name}${TAG}.png`) });
@@ -118,8 +118,49 @@ async function main() {
   await sleep(500);
   await shot(page, '74-eco-popup');
   await overflow(page, '.eco-panel', 'bảng hệ sinh thái');
-  await page.locator('.eco-panel .btn.icon').click();
-  await page.locator('.detail .right .btn.icon').click();
+  // nút phụ của bảng hệ sinh thái → màn "Biển Đông cần chúng" cuộn tới hệ đó
+  await page.getByText('Xem các loài của hệ này').click();
+  await sleep(700);
+  if (!(await page.locator('.seaneeds').count())) problems.push('nút “Xem các loài của hệ này” không mở màn Biển Đông');
+  await page.keyboard.press('Escape');
+  await sleep(300);
+
+  // màn "Biển Đông cần chúng" mở từ Sổ tay
+  await page.locator('.sea-btn').click();
+  await sleep(800);
+  const cards = await page.locator('.eco-card').count();
+  const quote = (await page.locator('.sn-quote').textContent()) ?? '';
+  console.log(`Màn Biển Đông: ${cards} thẻ hệ sinh thái; câu cuối: “${quote}”`);
+  if (cards !== 4) problems.push(`màn Biển Đông có ${cards} thẻ (cần 4)`);
+  if (quote !== 'Mỗi loài là một mắt xích. Mất một mắt xích, cả chuỗi sẽ lung lay.') problems.push('sai câu cuối màn Biển Đông');
+  const red = await page.locator('.ec-tile.redbook').count();
+  const unk = await page.locator('.ec-tile.unknown').count();
+  console.log(`  ô Sách Đỏ (viền đỏ son): ${red}; ô chưa gặp (bóng đen): ${unk}`);
+  await shot(page, '76-sea-needs');
+  await overflow(page, '.sn-body', 'màn Biển Đông cần chúng');
+  await page.locator('.sn-body').evaluate((e) => e.scrollTo(0, e.scrollHeight));
+  await sleep(400);
+  await shot(page, '77-sea-needs-end');
+  await page.locator('.ec-tile.redbook:not(.unknown)').first().click();
+  await sleep(900);
+  if (!(await page.locator('.detail').count())) problems.push('bấm ô loài đã gặp không mở thẻ chi tiết');
+  await page.keyboard.press('Escape');
+  await sleep(300);
+  if (await page.locator('.detail').count()) problems.push('Esc không đóng thẻ chi tiết');
+  await page.keyboard.press('Escape');
+  await sleep(300);
+  if (await page.locator('.seaneeds').count()) problems.push('Esc không đóng màn Biển Đông');
+  if (!(await page.locator('.journal').count())) problems.push('Esc đóng luôn cả Sổ tay (cần quay về Sổ tay)');
+  else console.log('✓ Esc đóng lần lượt: thẻ chi tiết → màn Biển Đông → còn Sổ tay');
+
+  // thẻ loài mới (rùa da, có trong Sách Đỏ)
+  await page.locator('.tab').first().click();
+  await sleep(400);
+  await page.locator('.scard[aria-label="Rùa da"]').click();
+  await sleep(1100);
+  await shot(page, '78-detail-rua-da');
+  await overflow(page, '.detail .sheet', 'thẻ rùa da');
+  await page.keyboard.press('Escape');
   await page.locator('.topbar .btn.icon').first().click();
   await sleep(400);
 

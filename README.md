@@ -2,7 +2,7 @@
 
 🎮 **Chơi ngay:** https://hotankhoi.github.io/lan-sau-bien-viet/
 
-Game giáo dục 2D chạy trên trình duyệt: người chơi là thợ lặn nghiên cứu, lặn khám phá 4 vùng biển Việt Nam (Bắc Bộ, miền Trung, miền Nam, khơi xa) qua 3 tầng độ sâu, **chụp ảnh** (không bắt) 43 loài sinh vật biển, ghi vào Sổ tay. Toàn bộ hình ảnh được vẽ bằng mã (SVG + WebGL), âm thanh tạo bằng Web Audio. Chơi được trên máy tính và máy tính bảng/điện thoại (cảm ứng).
+Game giáo dục 2D chạy trên trình duyệt: người chơi là thợ lặn nghiên cứu, lặn khám phá 4 vùng biển Việt Nam (Bắc Bộ, miền Trung, miền Nam, khơi xa) qua 3 tầng độ sâu, **chụp ảnh** (không bắt) 46 loài sinh vật biển, ghi vào Sổ tay. Toàn bộ hình ảnh được vẽ bằng mã (SVG + WebGL), âm thanh tạo bằng Web Audio. Chơi được trên máy tính và máy tính bảng/điện thoại (cảm ứng).
 
 ## Chạy trên máy
 

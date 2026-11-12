@@ -50,6 +50,23 @@ export function artUrl(id: string): string {
   return u;
 }
 
+/**
+ * Ảnh nhỏ của loài cho các lưới dày đặc: file WebP vẽ sẵn lúc build (`npm run art:thumbs` → public/thumbs/),
+ * tải ngay không tốn công dựng SVG trên máy người chơi.
+ */
+export function thumbUrl(id: string): string {
+  return `${import.meta.env.BASE_URL}thumbs/${id}.webp`;
+}
+
+/** Dự phòng khi thiếu file ảnh nhỏ: bản vẽ trong game cỡ nhỏ, bỏ filter (ở cỡ ~60 px gần như không thấy). */
+export function thumbSvgUrl(id: string, px = 168): string {
+  const art = getArt(id);
+  const [vw, vh] = art.viewBox;
+  const k = Math.min(px / vw, px / vh);
+  const svg = composeSvg(art, { mode: 'game', alarm: 0, width: Math.max(1, Math.round(vw * k)), height: Math.max(1, Math.round(vh * k)) }).replace(/\sfilter="url\(#[^)"]+\)"/g, '');
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
 export function stars(n: number, max = 3): HTMLElement {
   const s = h('span', { class: 'stars' });
   for (let i = 0; i < max; i++) s.appendChild(h('span', { class: i < n ? '' : 'off' }, '★'));

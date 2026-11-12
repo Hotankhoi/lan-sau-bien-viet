@@ -2,6 +2,7 @@
 import species from '../src/data/species.json';
 import achievements from '../src/data/achievements.json';
 import ecosystems from '../src/data/ecosystems.json';
+import { existsSync } from 'node:fs';
 
 const REGIONS = ['bac_bo', 'mien_trung', 'mien_nam', 'khoi_xa'];
 const RARITY = ['thuong_gap', 'it_gap', 'hiem', 'huyen_thoai'];
@@ -36,10 +37,11 @@ for (const s of species as Sp[]) {
   if ((['VU', 'EN', 'CR'].includes(s.iucn) || s.redBookVN) && !s.conservation) warn.push(`${p} loài cần bảo vệ nên có conservation`);
   if (s.tier === 3 && s.behavior !== 'deep_glow') warn.push(`${p} loài tầng 3 nhưng behavior không phải deep_glow`);
   if (s.needsVerification) warn.push(`${p} cần đội dự án kiểm chứng`);
+  if (!existsSync(`public/thumbs/${s.id}.webp`)) warn.push(`${p} thiếu ảnh nhỏ public/thumbs/${s.id}.webp – chạy npm run art:thumbs`);
 }
 const count = (r: string) => (species as Sp[]).filter((s) => s.region === r).length;
 const summary = REGIONS.map((r) => `${r}: ${count(r)}`).join(', ');
-if (species.length !== 43) errs.push(`Tổng số loài ${species.length} (cần 43)`);
+if (species.length !== 46) errs.push(`Tổng số loài ${species.length} (cần 46)`);
 for (const r of REGIONS) for (const t of TIERS[r]) if (!(species as Sp[]).some((s) => s.region === r && s.tier === t)) warn.push(`Vùng ${r} tầng ${t} chưa có loài nào`);
 if (!(species as Sp[]).some((s) => s.rarity === 'huyen_thoai')) warn.push('Chưa có loài huyền thoại');
 const extreme = (species as Sp[]).filter((s) => s.danger === 'cuc_ky_nguy_hiem').length;

@@ -317,3 +317,25 @@ Không ảnh nào được nhúng, chuyển đổi tự động hay đóng gói 
 - `ref1.jpg`: [File:Six-gill shark.jpg](https://commons.wikimedia.org/wiki/File:Six-gill_shark.jpg) — Tác giả: không rõ — Giấy phép: Public domain
 - `ref2.jpg`: [File:Hexanchus griseus.jpg](https://commons.wikimedia.org/wiki/File:Hexanchus_griseus.jpg) — Tác giả: Operation Deep Scope 2005 Expedition: NOAA Office of Ocean Exploration; Harbor Branch Oceanographic Institution — Giấy phép: Public domain
 - `ref3.jpg`: [File:Hexanchus griseus ankara.jpg](https://commons.wikimedia.org/wiki/File:Hexanchus_griseus_ankara.jpg) — Tác giả: muammer okumu%u015F from istanbul, Turkey — Giấy phép: CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0)
+
+## Rùa da (rua_da)
+
+- `ref1.jpg`: [File:Dermochelys coriacea.jpg](https://commons.wikimedia.org/wiki/File:Dermochelys_coriacea.jpg) — Tác giả: Ditmars, Raymond Lee, 1876-1942 — Giấy phép: Public domain
+- `ref2.jpg`: [File:Flickr - Rainbirder - LEVIATHAN.jpg](https://commons.wikimedia.org/wiki/File:Flickr_-_Rainbirder_-_LEVIATHAN.jpg) — Tác giả: Steve Garvie from Dunfermline, Fife, Scotland — Giấy phép: CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0)
+- `ref3.jpg`: [File:Dermochelys coriacea leatherback turtle.jpg](https://commons.wikimedia.org/wiki/File:Dermochelys_coriacea_leatherback_turtle.jpg) — Tác giả: Rabon David, U.S. Fish and Wildlife Service — Giấy phép: Public domain
+- `ref4.jpg`: [File:Iziko Leatherback Turtle.JPG](https://commons.wikimedia.org/wiki/File:Iziko_Leatherback_Turtle.JPG) — Tác giả: Nkansah Rexford — Giấy phép: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0)
+- `ref5.jpg`: [File:Bulletin de la Société des sciences naturelles de l'Ouest de la France (1893) (20438163745).jpg](https://commons.wikimedia.org/wiki/File:Bulletin_de_la_Soci%C3%A9t%C3%A9_des_sciences_naturelles_de_l%27Ouest_de_la_France_(1893)_(20438163745).jpg) — Tác giả: Société des sciences naturelles de l'Ouest de la France — Giấy phép: No restrictions (https://www.flickr.com/commons/usage/)
+
+## Ốc anh vũ (oc_anh_vu)
+
+- `ref1.jpg`: [File:Nautilus-JB-01.jpg](https://commons.wikimedia.org/wiki/File:Nautilus-JB-01.jpg) — Tác giả: J. Baecker — Giấy phép: Public domain
+- `ref2.jpg`: [File:Nautilus pompilius 3.jpg](https://commons.wikimedia.org/wiki/File:Nautilus_pompilius_3.jpg) — Tác giả: Hans Hillewaert — Giấy phép: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+- `ref3.jpg`: [File:Nautilus pompilius (detail).jpg](https://commons.wikimedia.org/wiki/File:Nautilus_pompilius_(detail).jpg) — Tác giả: Hans Hillewaert — Giấy phép: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+- `ref4.jpg`: [File:Nautilus pompilius (front).jpg](https://commons.wikimedia.org/wiki/File:Nautilus_pompilius_(front).jpg) — Tác giả: Hans Hillewaert — Giấy phép: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+## Hải sâm vú (hai_sam_vu)
+
+- `ref1.jpg`: [File:Holothuria whitmaei.jpg](https://commons.wikimedia.org/wiki/File:Holothuria_whitmaei.jpg) — Tác giả: François Michonneau — Giấy phép: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)
+- `ref2.jpg`: [File:Holothuria whitmaei (2714950).JPG](https://commons.wikimedia.org/wiki/File:Holothuria_whitmaei_(2714950).JPG) — Tác giả: Jesse Rorabaugh — Giấy phép: CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)
+- `ref3.jpg`: [File:Holothuria whitmaei (19260385).jpg](https://commons.wikimedia.org/wiki/File:Holothuria_whitmaei_(19260385).jpg) — Tác giả: Don Loarie — Giấy phép: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0)
+- `ref4.jpg`: [File:Holothuria whitmaei 356718843.jpg](https://commons.wikimedia.org/wiki/File:Holothuria_whitmaei_356718843.jpg) — Tác giả: Theo Summer — Giấy phép: CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)

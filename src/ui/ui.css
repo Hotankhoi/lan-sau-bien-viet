@@ -1791,3 +1791,181 @@ input[type='range'] {
     height: 22vh;
   }
 }
+
+/* ---------- Màn "Biển Đông cần chúng" ---------- */
+.screen.seaneeds {
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+.btn.sea-btn {
+  min-height: 42px;
+  padding: 6px 16px;
+  border-color: rgba(79, 227, 211, 0.6);
+}
+.sn-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 22px 28px;
+}
+.sn-intro {
+  max-width: 980px;
+  margin: 0 0 10px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+.sn-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 14px;
+  color: var(--ink-dim);
+  font-size: 15px;
+}
+.sn-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sn-legend i {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+}
+.sn-legend .lg-red {
+  border: 3px solid var(--redbook);
+}
+.sn-legend .lg-unk {
+  background: #061523;
+  border: 1px solid var(--line);
+}
+.sn-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+  gap: 16px;
+}
+.eco-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  line-height: 1.5;
+  scroll-margin-top: 10px;
+}
+.eco-card.eco-ran_san_ho {
+  border-top: 4px solid #ff9f7a;
+}
+.eco-card.eco-co_bien {
+  border-top: 4px solid #7fd88a;
+}
+.eco-card.eco-bien_khoi {
+  border-top: 4px solid #52b6ff;
+}
+.eco-card.eco-bien_sau {
+  border-top: 4px solid #8a7dff;
+}
+.ec-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ec-head h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+}
+.ec-sum {
+  margin: 0;
+}
+.eco-card .eco-threat {
+  margin-top: 0;
+}
+.eco-card .eco-threat p {
+  margin: 0;
+}
+.ec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+.ec-tile {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(20, 80, 110, 0.45), rgba(4, 28, 48, 0.65));
+  padding: 8px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s;
+}
+.ec-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.ec-tile.unknown {
+  cursor: default;
+  background: linear-gradient(180deg, rgba(10, 40, 60, 0.45), rgba(2, 16, 30, 0.7));
+}
+.ec-tile.unknown:hover {
+  transform: none;
+  border-color: var(--line);
+}
+.ec-tile.redbook {
+  border: 3px solid var(--redbook);
+  box-shadow: 0 0 14px rgba(232, 69, 44, 0.35);
+}
+.ec-tile .rb-mark {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  width: 18px;
+  height: 18px;
+}
+.ec-tile .et-img {
+  height: 58px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ec-tile .et-img img {
+  max-width: 100%;
+  max-height: 100%;
+}
+.ec-tile.unknown .et-img img {
+  filter: brightness(0) opacity(0.65) drop-shadow(0 0 5px rgba(79, 227, 211, 0.35));
+}
+.ec-tile .et-name {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.sn-quote {
+  margin: 26px auto 6px;
+  max-width: 760px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--gold);
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+/* nền đã gần đục: bỏ làm mờ phía sau để không phải vẽ chồng 2 lớp blur toàn màn hình */
+.screen.dim.solid.seaneeds {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: radial-gradient(ellipse at 50% 20%, #072d4a, #020c18);
+}

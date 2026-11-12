@@ -28,10 +28,17 @@
 
 ## 2026-11-12 – Dữ liệu bảo tồn & Sách Đỏ (DU_LIEU_BAO_TON.json)
 - **Gộp dữ liệu**: dùng `tools/merge-conservation.py` để thêm `ecosystem`, `redBookVN`, `appearance`, `ecoRole` vào `species.json` (giữ nguyên định dạng gọn) và sinh `src/data/ecosystems.json`. Chạy lại script là cập nhật được khi đội sửa file gốc.
-- **"Cần bảo vệ"** = IUCN VU/EN/CR **hoặc** `redBookVN: true` (hàm `isProtected` trong `types.ts`). Hiện có 16 loài. Thành tựu "Người bảo vệ" dùng đúng danh sách này.
+- **"Cần bảo vệ"** = IUCN VU/EN/CR **hoặc** `redBookVN: true` (hàm `isProtected` trong `types.ts`). Sau khi thêm 3 loài mới có 19 loài (12 loài Sách Đỏ). Thành tựu "Người bảo vệ" dùng đúng danh sách này.
 - **Thẻ ghi nhận đặc biệt** thay cho thẻ "Ghi nhận loài mới" thường khi loài thuộc danh sách "Cần bảo vệ" (không hiện hai thẻ liên tiếp để khỏi làm phiền). Nếu ảnh vừa chụp không có thì dùng hình vẽ của loài.
 - **Vị trí mục mới** trong thẻ chi tiết: ngay dưới tên và hàng huy hiệu (huy hiệu là một phần của phần tên), trước "Kích thước/Vùng biển".
 - **Loài chưa ghi nhận** chỉ hiện bóng đen + vùng/tầng + "Sống ở: <hệ sinh thái>" + gợi ý hành vi; không lộ `appearance`.
 - **Giải thích Sách Đỏ** viết thận trọng ("cần được ưu tiên bảo vệ; nhiều loài bị cấm săn bắt, mua bán") vì việc cấm cụ thể do các văn bản pháp luật khác quy định.
 - Bào ngư chín lỗ chưa có `conservation` trong dữ liệu → dùng thông điệp bảo tồn chung (đội có thể bổ sung).
 - `window.__bus` chỉ có khi chạy `npm run dev` (để Playwright giả lập ảnh chụp), không có trong bản build.
+
+## 2026-11-12 – 3 loài mới & màn "Biển Đông cần chúng"
+- **Hải sâm vú** vẽ theo mô tả `visual` (thân đen mờ, 7 u "vú" hai bên, gai thịt nhỏ, lốm đốm cát) vì thư mục ảnh Wikimedia *Holothuria whitmaei* lẫn ảnh hải sâm vú trắng; chọn ảnh tham khảo đúng thân đen.
+- **Rùa da** đặt `displayLengthPx` 300 (dài ~2 m nhưng không che kín màn hình, giống cách làm với manta); **ốc anh vũ** 120 px. Vỏ ốc anh vũ vẽ bằng xoắn ốc logarit để vân lửa chạy đúng theo vòng xoắn.
+- **Ảnh nhỏ trong màn "Biển Đông cần chúng"**: dựng 46 hình SVG đầy đủ trên máy người chơi mất 12–19 giây (máy yếu còn lâu hơn), nên vẽ sẵn thành WebP 200 px lúc phát triển (`npm run art:thumbs`, tổng 268 KB, lưu ở `public/thumbs/`). Nếu thiếu file thì tự dựng tạm bản SVG nhỏ. `npm run validate:data` cảnh báo khi loài thiếu ảnh nhỏ. **Sửa hình loài nào thì chạy lại `npm run art:thumbs -- <id>`.**
+- Màn "Biển Đông cần chúng" nằm trên Sổ tay; Esc đóng lần lượt: bảng hệ sinh thái → thẻ chi tiết → màn Biển Đông → Sổ tay. Bấm ô loài đã gặp mở thẻ chi tiết; ô chưa gặp không bấm được (không lộ thông tin).
+- Màn này dùng nền gần đục, bỏ làm mờ phía sau (backdrop blur) để không phải vẽ chồng hai lớp mờ toàn màn hình.
